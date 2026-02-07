@@ -5,10 +5,10 @@
 
     <!-- Public plugin name should be written in Title Case.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-name -->
-    <name>Midas</name>
+    <name>Midas - Daily Work Helper</name>
 
     <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
-    <vendor url="https://www.yourcompany.com">YourCompany</vendor>
+    <vendor url="https://github.com/ZhaoRuidong/Midas">Flymars</vendor>
 
     <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-description -->
@@ -25,13 +25,16 @@
     ]]></description>
 
     <change-notes><![CDATA[
-        <h3>Version 2.0.0</h3>
+        <h3>Version 1.0.0</h3>
         <ul>
-            <li>Complete refactor to use GitLab REST API</li>
-            <li>Support for multiple GitLab instances</li>
-            <li>Cross-project report generation</li>
-            <li>Concrete SMTP email implementation</li>
-            <li>New instance and project management dialogs</li>
+            <li>GitLab REST API integration for fetching commits</li>
+            <li>Support for multiple GitLab instances (self-hosted and GitLab.com)</li>
+            <li>Cross-project weekly report generation</li>
+            <li>AI-powered analysis (OpenAI, Claude, Zhipu AI)</li>
+            <li>Daily notes feature for enhanced reports</li>
+            <li>Multi-language report support (Chinese/English)</li>
+            <li>SMTP email delivery with scheduling</li>
+            <li>IntelliJ Compose UI for modern user experience</li>
         </ul>
     ]]></change-notes>
 

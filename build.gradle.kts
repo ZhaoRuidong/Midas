@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "org.flymars.devtools"
-version = "1.0-SNAPSHOT"
+version = "1.0.0"
 
 repositories {
     mavenCentral()
@@ -51,8 +51,24 @@ intellijPlatform {
         }
 
         changeNotes = """
-            Initial version
+            <h3>Initial Release v1.0.0</h3>
+            <ul>
+                <li>GitLab REST API integration for fetching commits</li>
+                <li>Support for multiple GitLab instances (self-hosted and GitLab.com)</li>
+                <li>Cross-project weekly report generation</li>
+                <li>AI-powered analysis (OpenAI, Claude, Zhipu AI)</li>
+                <li>Daily notes feature for enhanced reports</li>
+                <li>Multi-language report support (Chinese/English)</li>
+                <li>SMTP email delivery with scheduling</li>
+                <li>IntelliJ Compose UI for modern user experience</li>
+            </ul>
         """.trimIndent()
+    }
+
+    pluginVerification {
+        ides {
+            recommended()
+        }
     }
 }
 
