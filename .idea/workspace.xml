@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="d08499e9-7f03-4536-90ee-586a10672d86" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.intellijPlatform/self-update.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.intellijPlatform/self-update.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/settings.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/settings.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/CommitReporterKeys.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/CommitReporterKeys.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/analysis/AIAnalyzerService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/analysis/AIAnalyzerService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/analysis/PromptTemplate.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/analysis/PromptTemplate.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/config/ConfigManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/config/ConfigManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/config/PluginConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/config/PluginConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/core/CommitStorage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/core/CommitStorage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/data/CommitInfo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/data/CommitInfo.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/data/Statistics.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/data/Statistics.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/data/WeeklyReport.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/data/WeeklyReport.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/email/EmailService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/email/EmailService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/email/ReminderScheduler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/email/ReminderScheduler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/gitlab/GitLabApiClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/gitlab/GitLabApiClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/gitlab/GitLabInstanceService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/gitlab/GitLabInstanceService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/gitlab/GitLabModelMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/gitlab/GitLabModelMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/gitlab/GitLabProjectCache.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/gitlab/GitLabProjectCache.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/gitlab/GitLabProjectService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/gitlab/GitLabProjectService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/gitlab/model/GitLabCommit.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/gitlab/model/GitLabCommit.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/gitlab/model/GitLabDiff.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/gitlab/model/GitLabDiff.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/gitlab/model/GitLabInstance.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/gitlab/model/GitLabInstance.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/gitlab/model/GitLabProject.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/gitlab/model/GitLabProject.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/report/ReportTemplate.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/report/ReportTemplate.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/report/WeeklyReportGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/report/WeeklyReportGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/security/EncryptionUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/security/EncryptionUtil.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/ui/actions/GenerateReportAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/ui/actions/GenerateReportAction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/ui/actions/RefreshAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/ui/actions/RefreshAction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/ui/actions/SendEmailAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/ui/actions/SendEmailAction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/ui/notification/NotificationManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/ui/notification/NotificationManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/ui/settings/PluginSettingsConfigurable.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/ui/settings/PluginSettingsConfigurable.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/ui/settings/SettingsPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/ui/settings/SettingsPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/ui/toolwindow/ReportPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/ui/toolwindow/ReportPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/ui/toolwindow/ReportPreviewDialog.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/ui/toolwindow/ReportPreviewDialog.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/ui/toolwindow/ReportToolWindowFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/ui/toolwindow/ReportToolWindowFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/META-INF/plugin.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/META-INF/plugin.xml" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="ExternalProjectsManager">
+    <system id="GRADLE">
+      <state>
+        <task path="$PROJECT_DIR$">
+          <activation />
+        </task>
+        <projects_view>
+          <tree_state>
+            <expand>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="second-hand" type="f1a62948:ProjectNode" />
+              </path>
+            </expand>
+            <select />
+          </tree_state>
+        </projects_view>
+      </state>
+    </system>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GradleScriptDefinitionsStorage" workingDir="$PROJECT_DIR$" gradleHome="$USER_HOME$/.gradle/wrapper/dists/gradle-9.0.0-bin/d6wjpkvcgsg3oed0qlfss3wgl/gradle-9.0.0" javaHome="$USER_HOME$/Library/Java/JavaVirtualMachines/temurin-21.0.10/Contents/Home" gradleVersion="9.0.0">
+    <option name="jvmArguments">
+      <list>
+        <option value="-Dhttp.nonProxyHosts=192.168.*" />
+        <option value="-Dhttps.nonProxyHosts=192.168.*" />
+        <option value="-Dhttp.proxyHost=127.0.0.1" />
+        <option value="-Dhttp.proxyPort=10808" />
+        <option value="-Dhttps.proxyHost=127.0.0.1" />
+        <option value="-Dhttps.proxyPort=10808" />
+      </list>
+    </option>
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.36/c37490d4988331a31a5b3d3836e745d65aed485e/lombok-1.18.36-sources.jar!/lombok/Builder.java" root0="SKIP_INSPECTION" />
+  </component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="customMavenHome" value="/opt/homebrew/Cellar/mvnd@1/1.0.3" />
+        <option name="mavenHomeTypeForPersistence" value="CUSTOM" />
+        <option name="threads" value="1" />
+        <option name="useMavenConfig" value="false" />
+      </MavenGeneralSettings>
+    </option>
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 0
+}</component>
+  <component name="ProjectId" id="39I7Spbde6JpHt8rgUQH4Ldl901" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Gradle.Build second-hand.executor": "Run",
+    "Gradle.Run IDE with Plugin.executor": "Debug",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "git-widget-placeholder": "main",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/Users/zhaord/Workstation/code/self/second-hand",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "preferences.lookFeel",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-30f59d01ecdd-2fc7cc6b9a17-intellij.indexing.shared.core-IU-253.30387.90" />
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-IU-253.30387.90" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="d08499e9-7f03-4536-90ee-586a10672d86" name="Changes" comment="" />
+      <created>1770371735145</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1770371735145</updated>
+      <workItem from="1770371736179" duration="901000" />
+      <workItem from="1770372732727" duration="4855000" />
+      <workItem from="1770379358114" duration="13080000" />
+      <workItem from="1770393121786" duration="42549000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/ui/settings/SettingsPanel.java</url>
+          <line>484</line>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/gitlab/GitLabProjectService.java</url>
+          <line>198</line>
+          <option name="timeStamp" value="4" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/ui/actions/SendEmailAction.java</url>
+          <line>29</line>
+          <option name="timeStamp" value="17" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/email/EmailService.java</url>
+          <line>132</line>
+          <option name="timeStamp" value="18" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/email/EmailService.java</url>
+          <line>69</line>
+          <option name="timeStamp" value="19" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/config/ConfigManager.java</url>
+          <line>163</line>
+          <option name="timeStamp" value="20" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/ui/settings/PluginSettingsConfigurable.java</url>
+          <line>63</line>
+          <option name="timeStamp" value="21" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/report/WeeklyReportGenerator.java</url>
+          <line>183</line>
+          <option name="timeStamp" value="24" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/analysis/AIAnalyzerService.java</url>
+          <line>49</line>
+          <option name="timeStamp" value="25" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/analysis/AIAnalyzerService.java</url>
+          <line>204</line>
+          <option name="timeStamp" value="26" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
+  </component>
+</project>

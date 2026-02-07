@@ -1,0 +1,85 @@
+<!-- Plugin Configuration File: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+    <!-- Unique identifier of the plugin. It should be FQN, cannot be changed between the plugin versions. -->
+    <id>org.flymars.devtools.midas</id>
+
+    <!-- Public plugin name should be written in Title Case.
+         Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-name -->
+    <name>Midas</name>
+
+    <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
+    <vendor url="https://www.yourcompany.com">YourCompany</vendor>
+
+    <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
+         Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-description -->
+    <description><![CDATA[
+        <p>Generate weekly reports from GitLab commits using AI analysis.</p>
+        <ul>
+            <li>Integrates with GitLab REST API</li>
+            <li>Supports multiple GitLab instances</li>
+            <li>Cross-project report generation</li>
+            <li>AI-powered intelligent summarization</li>
+            <li>Scheduled email delivery</li>
+            <li>Customizable report templates</li>
+        </ul>
+    ]]></description>
+
+    <change-notes><![CDATA[
+        <h3>Version 2.0.0</h3>
+        <ul>
+            <li>Complete refactor to use GitLab REST API</li>
+            <li>Support for multiple GitLab instances</li>
+            <li>Cross-project report generation</li>
+            <li>Concrete SMTP email implementation</li>
+            <li>New instance and project management dialogs</li>
+        </ul>
+    ]]></change-notes>
+
+    <!-- Product and plugin compatibility requirements.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
+    <depends>com.intellij.modules.compose</depends>
+    <depends>com.intellij.java</depends>
+    <depends>com.intellij.modules.json</depends>
+    <depends>org.intellij.plugins.markdown</depends>
+
+    <!-- Extension Points -->
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Notification Group -->
+        <notificationGroup id="Midas"
+                           displayType="BALLOON"
+                           key="notification.group.name"/>
+
+        <!-- Project Settings -->
+        <projectConfigurable parentId="tools"
+                                instance="org.flymars.devtools.midas.ui.settings.PluginSettingsConfigurable"
+                                id="org.flymars.devtools.midas.settings"
+                                displayName="Midas"/>
+
+        <!-- Tool Window -->
+        <toolWindow id="Midas"
+                   factoryClass="org.flymars.devtools.midas.ui.toolwindow.ReportToolWindowFactory"
+                   anchor="right"
+                   icon="/META-INF/icon.svg"/>
+
+        <!-- Services annotated with @Service are auto-registered, no need to declare here -->
+    </extensions>
+
+    <!-- Actions -->
+    <actions>
+        <action id="Midas.Refresh"
+                class="org.flymars.devtools.midas.ui.actions.RefreshAction"
+                text="Refresh Commit Data"
+                description="Refresh Git commit data"
+                icon="/META-INF/refresh.svg"/>
+        <action id="Midas.GenerateReport"
+                class="org.flymars.devtools.midas.ui.actions.GenerateReportAction"
+                text="Generate Weekly Report"
+                description="Generate and preview weekly report"
+                icon="/META-INF/report.svg"/>
+        <action id="Midas.SendEmail"
+                class="org.flymars.devtools.midas.ui.actions.SendEmailAction"
+                text="Send Report via Email"
+                description="Send weekly report via email"
+                icon="/META-INF/email.svg"/>
+    </actions>
+</idea-plugin>
