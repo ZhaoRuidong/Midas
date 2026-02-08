@@ -3,9 +3,19 @@ package org.flymars.devtools.midas.ui.toolwindow;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.ui.JBColor;
+import com.intellij.ui.components.JBScrollPane;
+import com.intellij.util.ui.JBUI;
+import com.intellij.util.ui.UIUtil;
+import com.intellij.util.ui.components.BorderLayoutPanel;
+import com.intellij.ui.JBSplitter;
+import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.TreeSpeedSearch;
 import com.intellij.ui.components.JBLabel;
+import com.intellij.ui.components.JBList;
 import com.intellij.ui.treeStructure.Tree;
+import com.intellij.util.ui.JBUI;
+import com.intellij.util.ui.components.BorderLayoutPanel;
 import org.flymars.devtools.midas.CommitReporterKeys;
 import org.flymars.devtools.midas.config.ConfigManager;
 import org.flymars.devtools.midas.core.CommitStorage;
@@ -52,11 +62,13 @@ public class ReportPanel {
     private JLabel statusLabel;
 
     // Daily Notes UI components
-    private JList<String> weekDaysList;
+    private JBList<String> weekDaysList;
     private DefaultListModel<String> weekDaysModel;
     private JTextArea noteEditor;
+    private JScrollPane noteEditorScrollPane;
     private JButton saveNoteButton;
-    private JLabel noteStatusLabel;
+    private JBLabel noteStatusLabel;
+    private JComponent toolbarComponent;
     private LocalDate currentWeekStart;
     private List<DailyNote> currentWeekNotes = new ArrayList<>();
 
@@ -73,6 +85,9 @@ public class ReportPanel {
         // Register listener for settings changes
         this.messageBusConnection = project.getMessageBus().connect();
         this.messageBusConnection.subscribe(CommitReporterKeys.SETTINGS_CHANGED_TOPIC, () -> refreshFromCache());
+
+        // Trigger auto-load of projects in background if needed
+        gitlabProjectService.ensureProjectsLoaded();
 
         createUI();
         loadInitialData();
@@ -154,63 +169,66 @@ public class ReportPanel {
     }
 
     /**
-     * Create the daily notes panel
+     * Create the daily notes panel with IDEA native style
      */
     private JPanel createNotesPanel() {
-        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        BorderLayoutPanel panel = JBUI.Panels.simplePanel();
+        panel.setOpaque(false);
 
         // Initialize current week
         currentWeekStart = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
 
-        // Left panel - Week days list
-        JPanel leftPanel = new JPanel(new BorderLayout(5, 5));
-        leftPanel.setBorder(BorderFactory.createTitledBorder("This Week"));
-
+        // Create week days model
         weekDaysModel = new DefaultListModel<>();
         updateWeekDaysList();
 
-        weekDaysList = new JList<>(weekDaysModel);
+        // Create list with IDEA style
+        weekDaysList = new JBList<>(weekDaysModel);
         weekDaysList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         weekDaysList.setCellRenderer(new WeekDayCellRenderer());
 
-        JScrollPane listScrollPane = new JScrollPane(weekDaysList);
-        listScrollPane.setPreferredSize(new Dimension(120, 0));
-        leftPanel.add(listScrollPane, BorderLayout.CENTER);
+        // Create toolbar decorator for the list
+        ToolbarDecorator listDecorator = ToolbarDecorator.createDecorator(weekDaysList)
+                .setPreferredSize(new Dimension(150, 0))
+                .disableAddAction()
+                .disableRemoveAction()
+                .disableUpDownActions();
 
-        // Right panel - Note editor
-        JPanel rightPanel = new JPanel(new BorderLayout(5, 5));
-        rightPanel.setBorder(BorderFactory.createTitledBorder("Note Content"));
+        JPanel listPanel = listDecorator.createPanel();
 
-        noteEditor = new JTextArea();
-        noteEditor.setLineWrap(true);
-        noteEditor.setWrapStyleWord(true);
-        noteEditor.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+        // Create note editor
+        noteEditor = createNoteEditor();
+        java.awt.Color bgColor = UIUtil.getPanelBackground();
+        noteEditor.setBackground(bgColor);
 
-        JScrollPane editorScrollPane = new JScrollPane(noteEditor);
+        noteEditorScrollPane = new JBScrollPane(noteEditor);
+        noteEditorScrollPane.setBorder(JBUI.Borders.empty(4));
+        noteEditorScrollPane.setOpaque(false);
+        noteEditorScrollPane.getViewport().setOpaque(false);
 
-        // Editor toolbar
-        JPanel editorToolbar = new JPanel(new BorderLayout(5, 5));
-        noteStatusLabel = new JBLabel("Select a day to view/edit note");
-        noteStatusLabel.setFont(new Font(noteStatusLabel.getFont().getName(), Font.ITALIC, 11));
+        // Create toolbar (transparent)
+        JComponent toolbar = createEditorToolbar();
 
-        saveNoteButton = new JButton("💾 Save Note");
-        saveNoteButton.setEnabled(false);
-        saveNoteButton.addActionListener(e -> saveCurrentNote());
+        // Create right panel using BorderLayout
+        JPanel rightPanel = new JPanel(new BorderLayout());
+        rightPanel.setOpaque(false);
+        rightPanel.setBackground(null);
+        rightPanel.add(toolbar, BorderLayout.NORTH);
+        rightPanel.add(noteEditorScrollPane, BorderLayout.CENTER);
 
-        editorToolbar.add(noteStatusLabel, BorderLayout.WEST);
-        editorToolbar.add(saveNoteButton, BorderLayout.EAST);
+        // Store reference to toolbar for color updates
+        this.toolbarComponent = toolbar;
 
-        rightPanel.add(editorToolbar, BorderLayout.NORTH);
-        rightPanel.add(editorScrollPane, BorderLayout.CENTER);
+        // Create splitter
+        JBSplitter splitter = new JBSplitter(false, 0.25f);
+        splitter.setOpaque(false);
+        splitter.setFirstComponent(listPanel);
+        splitter.setSecondComponent(rightPanel);
 
-        // Split pane
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        splitPane.setLeftComponent(leftPanel);
-        splitPane.setRightComponent(rightPanel);
-        splitPane.setResizeWeight(0.2);
-        splitPane.setDividerLocation(120);
+        panel.addToCenter(splitter);
 
-        panel.add(splitPane, BorderLayout.CENTER);
+        // Apply colors after components are added to hierarchy
+        SwingUtilities.invokeLater(() -> applyEditorColors());
 
         // Add list selection listener
         weekDaysList.addListSelectionListener(new ListSelectionListener() {
@@ -226,6 +244,80 @@ public class ReportPanel {
         });
 
         return panel;
+    }
+
+    /**
+     * Create IDEA-style editor for notes using JTextArea
+     */
+    private JTextArea createNoteEditor() {
+        JTextArea textArea = new JTextArea();
+        textArea.setLineWrap(true);
+        textArea.setWrapStyleWord(true);
+        textArea.setTabSize(4);
+
+        // Set font to match IDEA's editor font
+        textArea.setFont(new Font("Monospaced", Font.PLAIN, 13));
+
+        // Set background to be transparent to let parent show through
+        // Then set opaque to true so it paints the parent's background
+        textArea.setOpaque(true);
+
+        // Don't set colors here - they will be set by applyEditorColors()
+        // after the component is added to the hierarchy
+
+        return textArea;
+    }
+
+    /**
+     * Apply editor theme colors dynamically
+     * Call this when the component is displayed or theme changes
+     */
+    private void applyEditorColors() {
+        if (noteEditor == null) return;
+
+        // Get current colors from UIUtil
+        java.awt.Color bgColor = UIUtil.getPanelBackground();
+        java.awt.Color fgColor = UIUtil.getLabelForeground();
+
+        // Apply to editor
+        noteEditor.setBackground(bgColor);
+        noteEditor.setForeground(fgColor);
+
+        // Apply to toolbar to match editor background
+        if (toolbarComponent != null) {
+            toolbarComponent.setBackground(bgColor);
+        }
+
+        // Repaint to ensure changes are visible
+        noteEditor.repaint();
+        if (toolbarComponent != null) {
+            toolbarComponent.repaint();
+        }
+        if (noteEditorScrollPane != null) {
+            noteEditorScrollPane.repaint();
+        }
+    }
+
+    /**
+     * Create editor toolbar with status label and save button
+     */
+    private JComponent createEditorToolbar() {
+        // Use JPanel with BorderLayout instead of Box
+        // This gives us better control over background
+        JPanel toolbar = new JPanel(new BorderLayout());
+        toolbar.setBorder(JBUI.Borders.empty(5, 10));
+
+        noteStatusLabel = new JBLabel("Select a day to view/edit note");
+        noteStatusLabel.setOpaque(false);
+
+        saveNoteButton = new JButton("Save");
+        saveNoteButton.setEnabled(false);
+        saveNoteButton.addActionListener(e -> saveCurrentNote());
+
+        toolbar.add(noteStatusLabel, BorderLayout.WEST);
+        toolbar.add(saveNoteButton, BorderLayout.EAST);
+
+        return toolbar;
     }
 
     /**
@@ -252,11 +344,14 @@ public class ReportPanel {
         LocalDate selectedDate = currentWeekStart.plusDays(dayIndex);
         DailyNote note = storage.getNote(selectedDate);
 
+        String content = (note != null && note.getContent() != null) ? note.getContent() : "";
+
+        // Set text in JTextArea
+        noteEditor.setText(content);
+
         if (note != null && note.getContent() != null && !note.getContent().isEmpty()) {
-            noteEditor.setText(note.getContent());
             noteStatusLabel.setText(selectedDate + " - Loaded");
         } else {
-            noteEditor.setText("");
             noteStatusLabel.setText(selectedDate + " - No note yet");
         }
 
@@ -281,7 +376,7 @@ public class ReportPanel {
     }
 
     /**
-     * Cell renderer for week days list
+     * Cell renderer for week days list with IDEA native style
      */
     private static class WeekDayCellRenderer extends DefaultListCellRenderer {
         @Override
@@ -293,10 +388,17 @@ public class ReportPanel {
                 JLabel label = (JLabel) c;
                 String text = label.getText();
 
-                // Highlight today
+                // Apply IDEA-style border and padding
+                label.setBorder(JBUI.Borders.empty(4, 8));
+
+                // Highlight today with IDEA color scheme
                 if (text.startsWith("• ")) {
-                    label.setFont(new Font(label.getFont().getName(), Font.BOLD, 12));
-                    label.setForeground(new Color(0, 102, 204));
+                    label.setFont(new Font(label.getFont().getName(), Font.BOLD, 13));
+                    if (!isSelected) {
+                        label.setForeground(new Color(0, 102, 204));
+                    }
+                } else {
+                    label.setFont(new Font(label.getFont().getName(), Font.PLAIN, 13));
                 }
             }
 
