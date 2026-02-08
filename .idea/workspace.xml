@@ -5,43 +5,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d08499e9-7f03-4536-90ee-586a10672d86" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.intellijPlatform/self-update.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.intellijPlatform/self-update.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/settings.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/settings.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/CommitReporterKeys.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/CommitReporterKeys.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/analysis/AIAnalyzerService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/analysis/AIAnalyzerService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/analysis/PromptTemplate.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/analysis/PromptTemplate.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/config/ConfigManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/config/ConfigManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/config/PluginConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/config/PluginConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/core/CommitStorage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/core/CommitStorage.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/data/CommitInfo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/data/CommitInfo.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/data/Statistics.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/data/Statistics.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/data/WeeklyReport.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/data/WeeklyReport.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/email/EmailService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/email/EmailService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/email/ReminderScheduler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/email/ReminderScheduler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/gitlab/GitLabApiClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/gitlab/GitLabApiClient.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/gitlab/GitLabInstanceService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/gitlab/GitLabInstanceService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/gitlab/GitLabModelMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/gitlab/GitLabModelMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/gitlab/GitLabProjectCache.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/gitlab/GitLabProjectCache.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/gitlab/GitLabProjectService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/gitlab/GitLabProjectService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/gitlab/model/GitLabCommit.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/gitlab/model/GitLabCommit.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/gitlab/model/GitLabDiff.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/gitlab/model/GitLabDiff.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/gitlab/model/GitLabInstance.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/gitlab/model/GitLabInstance.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/gitlab/model/GitLabProject.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/gitlab/model/GitLabProject.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/report/ReportTemplate.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/report/ReportTemplate.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/report/WeeklyReportGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/report/WeeklyReportGenerator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/security/EncryptionUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/security/EncryptionUtil.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/ui/actions/GenerateReportAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/ui/actions/GenerateReportAction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/ui/actions/RefreshAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/ui/actions/RefreshAction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/ui/actions/SendEmailAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/ui/actions/SendEmailAction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/ui/notification/NotificationManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/ui/notification/NotificationManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/ui/settings/PluginSettingsConfigurable.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/ui/settings/PluginSettingsConfigurable.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/ui/settings/SettingsPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/ui/settings/SettingsPanel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/ui/toolwindow/ReportPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/ui/toolwindow/ReportPanel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/ui/toolwindow/ReportPreviewDialog.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/ui/toolwindow/ReportPreviewDialog.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/secondhand/ui/toolwindow/ReportToolWindowFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/ui/toolwindow/ReportToolWindowFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/gitlab/GitLabInstanceService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/gitlab/GitLabInstanceService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/gitlab/GitLabProjectCache.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/gitlab/GitLabProjectCache.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/gitlab/GitLabProjectService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/gitlab/GitLabProjectService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/report/ReportTemplate.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/report/ReportTemplate.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/ui/settings/SettingsPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/ui/settings/SettingsPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/ui/toolwindow/ReportPreviewDialog.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/flymars/devtools/midas/ui/toolwindow/ReportPreviewDialog.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/META-INF/email.svg" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/META-INF/email.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/META-INF/icon.svg" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/META-INF/icon.svg" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/META-INF/plugin.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/META-INF/plugin.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/META-INF/refresh.svg" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/META-INF/refresh.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/META-INF/report.svg" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/META-INF/report.svg" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -64,7 +40,40 @@
             <expand>
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="second-hand" type="f1a62948:ProjectNode" />
+                <item name="midas" type="f1a62948:ProjectNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="midas" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="midas" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="build" type="c8890929:TasksNode$1" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="midas" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="build setup" type="c8890929:TasksNode$1" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="midas" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="intellij platform" type="c8890929:TasksNode$1" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="midas" type="f1a62948:ProjectNode" />
+                <item name="Dependencies" type="6de06a37:ExternalSystemViewDefaultContributor$MyDependenciesNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="midas" type="f1a62948:ProjectNode" />
+                <item name="Run Configurations" type="7b0102dc:RunConfigurationsNode" />
               </path>
             </expand>
             <select />
@@ -111,14 +120,18 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Gradle.Build midas.executor": "Run",
     "Gradle.Build second-hand.executor": "Run",
     "Gradle.Run IDE with Plugin.executor": "Debug",
+    "Gradle.midas [buildPlugin].executor": "Debug",
+    "Gradle.midas [build].executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "git-widget-placeholder": "main",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/Users/zhaord/Workstation/code/self/second-hand",
+    "last_opened_file_path": "/Users/zhaord/Workstation/code/self/midas",
     "nodejs_package_manager_path": "npm",
     "project.structure.last.edited": "Modules",
     "project.structure.proportion": "0.15",
@@ -127,6 +140,64 @@
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
+  <component name="RunManager" selected="Gradle.Run IDE with Plugin">
+    <configuration name="midas [buildPlugin]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="buildPlugin" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <ExternalSystemDebugDisabled>false</ExternalSystemDebugDisabled>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
+      <GradleProfilingDisabled>false</GradleProfilingDisabled>
+      <GradleCoverageDisabled>false</GradleCoverageDisabled>
+      <method v="2" />
+    </configuration>
+    <configuration name="midas [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="build" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <ExternalSystemDebugDisabled>false</ExternalSystemDebugDisabled>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
+      <GradleProfilingDisabled>false</GradleProfilingDisabled>
+      <GradleCoverageDisabled>false</GradleCoverageDisabled>
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Gradle.midas [buildPlugin]" />
+        <item itemvalue="Gradle.midas [build]" />
+      </list>
+    </recent_temporary>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -146,6 +217,19 @@
       <workItem from="1770372732727" duration="4855000" />
       <workItem from="1770379358114" duration="13080000" />
       <workItem from="1770393121786" duration="42549000" />
+      <workItem from="1770487393528" duration="585000" />
+      <workItem from="1770488002021" duration="4575000" />
+      <workItem from="1770493327984" duration="371000" />
+      <workItem from="1770493711199" duration="29000" />
+      <workItem from="1770528191127" duration="133000" />
+      <workItem from="1770528362709" duration="1317000" />
+      <workItem from="1770529693531" duration="25000" />
+      <workItem from="1770529895917" duration="337000" />
+      <workItem from="1770530242684" duration="49000" />
+      <workItem from="1770530387872" duration="621000" />
+      <workItem from="1770531019514" duration="49000" />
+      <workItem from="1770531107700" duration="1196000" />
+      <workItem from="1770532321660" duration="5487000" />
     </task>
     <servers />
   </component>
@@ -162,6 +246,11 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <ignored-roots>
+      <path value="$PROJECT_DIR$" />
+    </ignored-roots>
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

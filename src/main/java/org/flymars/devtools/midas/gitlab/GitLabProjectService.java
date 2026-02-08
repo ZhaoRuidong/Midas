@@ -55,7 +55,71 @@ public final class GitLabProjectService {
         return project.getService(GitLabProjectService.class);
     }
 
+    // Flag to track if initial load has been triggered
+    private volatile boolean initialLoadTriggered = false;
+
     // ==================== Project Management ====================
+
+    /**
+     * Ensure projects are loaded from cache or API
+     * This method should be called when the plugin UI is first opened
+     * It will automatically load projects in the background if cache is empty
+     */
+    public void ensureProjectsLoaded() {
+        if (initialLoadTriggered) {
+            return; // Already triggered
+        }
+
+        synchronized (this) {
+            if (initialLoadTriggered) {
+                return;
+            }
+            initialLoadTriggered = true;
+        }
+
+        LOG.info("ensureProjectsLoaded() - Checking if projects need to be loaded");
+
+        // Check if we have any instances configured
+        List<GitLabInstance> instances = instanceService.getInstances();
+        if (instances.isEmpty()) {
+            LOG.info("No GitLab instances configured, skipping auto-load");
+            return;
+        }
+
+        // Check if cache is already populated
+        if (!projectsCache.isEmpty()) {
+            LOG.info("Projects cache already populated with " + projectsCache.size() + " instances");
+            return;
+        }
+
+        // Try to load from file cache first
+        boolean loadedFromFile = false;
+        for (GitLabInstance instance : instances) {
+            List<GitLabProject> cachedProjects = projectCache.getProjectsFromCache(instance.getId());
+            if (!cachedProjects.isEmpty()) {
+                LOG.info("Loaded " + cachedProjects.size() + " projects from file cache for instance: " + instance.getId());
+                projectsCache.put(instance.getId(), cachedProjects);
+                restoreSelectedState(cachedProjects);
+                loadedFromFile = true;
+            }
+        }
+
+        if (loadedFromFile) {
+            LOG.info("Projects loaded from file cache successfully");
+            return;
+        }
+
+        // No file cache found, trigger background API load
+        LOG.info("No file cache found, triggering background API load for all instances");
+
+        // Load in background without blocking
+        refreshAllProjects().thenRun(() -> {
+            LOG.info("Background API load completed, projects are now available");
+        }).exceptionally(e -> {
+            LOG.warn("Background API load failed (user may need to refresh manually)", e);
+            return null;
+        });
+    }
 
     /**
      * Get all projects from all instances
@@ -78,17 +142,19 @@ public final class GitLabProjectService {
     /**
      * Get selected projects for reporting
      * Loads projects from file cache first, then from API if needed
+     * Ensures projects are loaded and selection state is restored synchronously
      */
     public List<GitLabProject> getSelectedProjects() {
         // Check if cache is populated, if not, load projects first
         if (projectsCache.isEmpty()) {
-            LOG.info("Project cache is empty, loading projects from file cache or instances...");
+            LOG.info("Project cache is empty, loading projects from file cache or API...");
             List<GitLabInstance> instances = instanceService.getInstances();
             LOG.info("Found " + instances.size() + " instances to load projects from");
 
             // Log selected project IDs from config before loading
             List<String> configuredSelectedIds = configManager.getSelectedProjectIds();
-            LOG.info("Configured selected project IDs: " + configuredSelectedIds);
+            LOG.info("Configured selected project IDs from config: " + configuredSelectedIds);
+            LOG.info("Config has " + configuredSelectedIds.size() + " selected projects stored");
 
             if (!instances.isEmpty()) {
                 // Try to load from file cache first for each instance
@@ -100,13 +166,22 @@ public final class GitLabProjectService {
                         projectsCache.put(instance.getId(), cachedProjects);
                         restoreSelectedState(cachedProjects);
                         loadedFromCache = true;
+                    } else {
+                        LOG.info("No file cache found for instance: " + instance.getId());
                     }
                 }
 
-                // If file cache was empty for all instances, load from API
+                // If file cache was empty for all instances, load from API synchronously
                 if (!loadedFromCache) {
-                    LOG.info("No file cache found, loading projects from API...");
-                    refreshAllProjects().join();
+                    LOG.info("No file cache found for any instance, loading projects from API...");
+                    try {
+                        // Load from API and wait for completion
+                        // Note: refreshProjectsForInstance will call restoreSelectedState internally
+                        refreshAllProjects().join();
+                        LOG.info("API load completed, selected state should already be restored");
+                    } catch (Exception e) {
+                        LOG.error("Failed to load projects from API", e);
+                    }
                 }
 
                 // Log the results after loading

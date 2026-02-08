@@ -83,6 +83,10 @@ public class SettingsPanel {
         this.project = project;
         this.instanceService = GitLabInstanceService.getInstance(project);
         this.projectService = GitLabProjectService.getInstance(project);
+
+        // Trigger auto-load of projects in background if needed
+        this.projectService.ensureProjectsLoaded();
+
         createUI();
     }
 
@@ -753,6 +757,9 @@ public class SettingsPanel {
      * Reset settings from config
      */
     public void reset(ConfigManager config) {
+        // Trigger auto-load of projects (non-blocking)
+        projectService.ensureProjectsLoaded();
+
         enabledCheckBox.setSelected(config.isEnabled());
         ignoredBranchesField.setText(String.join(", ", config.getIgnoredBranches()));
 

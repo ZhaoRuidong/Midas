@@ -193,16 +193,6 @@ public class ReportTemplate {
         html.append("        <hr>\n");
         html.append("        <footer>\n");
 
-        if (isEnglish) {
-            html.append(String.format("            <p>Report generated: %s | Project: %s</p>\n",
-                    report.getGeneratedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")),
-                    report.getProjectName()));
-        } else {
-            html.append(String.format("            <p>报告生成时间: %s | 项目: %s</p>\n",
-                    report.getGeneratedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")),
-                    report.getProjectName()));
-        }
-
         html.append("            <div class=\"plugin-promo\">\n");
 
         if (isEnglish) {
@@ -212,7 +202,6 @@ public class ReportTemplate {
             html.append("                    <li>📊 Automatically track Git commit records</li>\n");
             html.append("                    <li>🤖 Generate professional weekly reports with AI</li>\n");
             html.append("                    <li>📧 Support email sending and scheduled reminders</li>\n");
-            html.append("                    <li>🔐 Encrypted data storage to protect privacy</li>\n");
             html.append("                </ul>\n");
             html.append("                <p>✨ Making weekly report generation simpler and improving work efficiency!</p>\n");
         } else {
@@ -222,7 +211,6 @@ public class ReportTemplate {
             html.append("                    <li>📊 自动追踪 Git 提交记录</li>\n");
             html.append("                    <li>🤖 基于 AI 生成专业的周报内容</li>\n");
             html.append("                    <li>📧 支持邮件发送与定时提醒</li>\n");
-            html.append("                    <li>🔐 数据加密存储，保护隐私安全</li>\n");
             html.append("                </ul>\n");
             html.append("                <p>✨ 让周报生成更简单，提高工作效率！</p>\n");
         }

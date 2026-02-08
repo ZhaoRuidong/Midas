@@ -275,17 +275,12 @@ public final class GitLabInstanceService {
                     .collect(Collectors.toList());
 
             configManager.setGitLabInstances(configs);
-
-            // Save access tokens to PasswordSafe
-            for (GitLabInstance instance : instancesCache) {
-                saveAccessTokenToPasswordSafe(instance);
-            }
         }
     }
 
     /**
-     * Convert GitLabInstance to config object (without token)
-     * User info is persisted for offline use
+     * Convert GitLabInstance to config object
+     * Includes encrypted access token and user info for offline use
      */
     private ConfigManager.GitLabInstanceConfig toConfig(GitLabInstance instance) {
         ConfigManager.GitLabInstanceConfig config = new ConfigManager.GitLabInstanceConfig();
@@ -296,6 +291,16 @@ public final class GitLabInstanceService {
         config.userName = instance.getUserName();
         config.userDisplayName = instance.getUserDisplayName();
         config.userEmail = instance.getUserEmail();
+
+        // Encrypt and save access token directly in config
+        // Use application-level encryption since ConfigManager is app-level
+        String token = instance.getAccessToken();
+        if (token != null && !token.isEmpty()) {
+            config.accessToken = EncryptionUtil.encryptForApp(token);
+        } else {
+            config.accessToken = token;
+        }
+
         return config;
     }
 
@@ -309,7 +314,24 @@ public final class GitLabInstanceService {
                 String encryptedToken = config.accessToken;
                 if (encryptedToken != null && !encryptedToken.isEmpty()) {
                     if (EncryptionUtil.isEncrypted(encryptedToken)) {
-                        return EncryptionUtil.decrypt(encryptedToken, project);
+                        // Try application-level decryption first (new format)
+                        String decrypted = EncryptionUtil.decryptForApp(encryptedToken);
+                        if (decrypted != null && !decrypted.isEmpty()) {
+                            return decrypted;
+                        }
+
+                        // Fallback: try project-level decryption (old format for migration)
+                        decrypted = EncryptionUtil.decrypt(encryptedToken, project);
+                        if (decrypted != null && !decrypted.isEmpty()) {
+                            // Migrate to new encryption format
+                            LOG.info("Migrating token from project-level to app-level encryption for instance: " + config.name);
+                            encryptAndSaveAccessToken(config.id, decrypted);
+                            return decrypted;
+                        }
+
+                        // Both decryption methods failed
+                        LOG.warn("Failed to decrypt access token for instance: " + config.name);
+                        return null;
                     } else {
                         // Migrate unencrypted token to encrypted
                         String decryptedToken = encryptedToken;
@@ -324,24 +346,6 @@ public final class GitLabInstanceService {
     }
 
     /**
-     * Save access token with encryption
-     */
-    private void saveAccessTokenToPasswordSafe(GitLabInstance instance) {
-        List<ConfigManager.GitLabInstanceConfig> configs = configManager.getGitLabInstances();
-        for (ConfigManager.GitLabInstanceConfig config : configs) {
-            if (config.id.equals(instance.getId())) {
-                String token = instance.getAccessToken();
-                if (token != null && !token.isEmpty()) {
-                    config.accessToken = EncryptionUtil.encrypt(token, project);
-                } else {
-                    config.accessToken = token;
-                }
-                break;
-            }
-        }
-    }
-
-    /**
      * Encrypt and save access token (for migration)
      */
     private void encryptAndSaveAccessToken(String instanceId, String token) {
@@ -349,7 +353,7 @@ public final class GitLabInstanceService {
         for (ConfigManager.GitLabInstanceConfig config : configs) {
             if (config.id.equals(instanceId)) {
                 if (token != null && !token.isEmpty()) {
-                    config.accessToken = EncryptionUtil.encrypt(token, project);
+                    config.accessToken = EncryptionUtil.encryptForApp(token);
                 }
                 break;
             }

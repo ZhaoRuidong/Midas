@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
-  <g fill="none" stroke="#6C707E" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+  <g fill="none" stroke="#CED0D6" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
     <!-- Document outline -->
     <path d="M3 2h7l3 3v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/>
 
@@ -13,7 +13,7 @@
   <!-- AI sparkle indicator (golden accent) -->
   <path d="M12 3l0.5 1.2 1.2 0.5-1.2 0.5-0.5 1.2-0.5-1.2-1.2-0.5 1.2-0.5z"
         fill="none"
-        stroke="#AF9F7E"
+        stroke="#D4A853"
         stroke-width="0.8"
         stroke-linecap="round"
         stroke-linejoin="round"/>

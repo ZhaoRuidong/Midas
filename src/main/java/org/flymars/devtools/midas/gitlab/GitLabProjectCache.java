@@ -158,11 +158,13 @@ public class GitLabProjectCache {
 
     /**
      * Get cache directory path
+     * Uses the application-level storage path (not project-specific)
      */
     private Path getCacheDirectory() {
         String storagePath = configManager.getStoragePath();
-        Path basePath = Paths.get(project.getBasePath(), storagePath);
-        return basePath.resolve(CACHE_DIR);
+        // storagePath is already an absolute path like ~/Library/Application Support/midas
+        // Don't prepend project.getBasePath() as it's meant to be application-level storage
+        return Paths.get(storagePath).resolve(CACHE_DIR);
     }
 
     /**

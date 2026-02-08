@@ -1,5 +1,5 @@
 <!-- Plugin Configuration File: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
-<idea-plugin>
+<idea-plugin allow-bundled-update="true" use-idea-classloader="true">
     <!-- Unique identifier of the plugin. It should be FQN, cannot be changed between the plugin versions. -->
     <id>org.flymars.devtools.midas</id>
 
@@ -7,7 +7,7 @@
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-name -->
     <name>Midas - Daily Work Helper</name>
 
-    <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
+    <!-- A displayed Vendor name or Organization ID displayed on the Plugin Page. -->
     <vendor url="https://github.com/ZhaoRuidong/Midas">Flymars</vendor>
 
     <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
@@ -47,6 +47,22 @@
 
     <!-- Extension Points -->
     <extensions defaultExtensionNs="com.intellij">
+        <!-- Application-level service (explicitly registered for dynamic plugin support) -->
+        <applicationService serviceImplementation="org.flymars.devtools.midas.config.ConfigManager"
+                            serviceInterface="org.flymars.devtools.midas.config.ConfigManager"/>
+
+        <!-- Project-level services (explicitly registered for dynamic plugin support) -->
+        <projectService serviceImplementation="org.flymars.devtools.midas.gitlab.GitLabInstanceService"
+                        serviceInterface="org.flymars.devtools.midas.gitlab.GitLabInstanceService"/>
+        <projectService serviceImplementation="org.flymars.devtools.midas.gitlab.GitLabProjectService"
+                        serviceInterface="org.flymars.devtools.midas.gitlab.GitLabProjectService"/>
+        <projectService serviceImplementation="org.flymars.devtools.midas.gitlab.GitLabCommitService"
+                        serviceInterface="org.flymars.devtools.midas.gitlab.GitLabCommitService"/>
+        <projectService serviceImplementation="org.flymars.devtools.midas.analysis.AIAnalyzerService"
+                        serviceInterface="org.flymars.devtools.midas.analysis.AIAnalyzerService"/>
+        <projectService serviceImplementation="org.flymars.devtools.midas.email.EmailService"
+                        serviceInterface="org.flymars.devtools.midas.email.EmailService"/>
+
         <!-- Notification Group -->
         <notificationGroup id="Midas"
                            displayType="BALLOON"
@@ -64,7 +80,8 @@
                    anchor="right"
                    icon="/META-INF/icon.svg"/>
 
-        <!-- Services annotated with @Service are auto-registered, no need to declare here -->
+        <!-- Post startup activity for initialization -->
+        <postStartupActivity implementation="org.flymars.devtools.midas.MidasStartupActivity"/>
     </extensions>
 
     <!-- Actions -->

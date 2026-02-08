@@ -7,6 +7,7 @@ import org.flymars.devtools.midas.data.CommitInfo;
 import org.flymars.devtools.midas.data.WeeklyReport;
 import org.flymars.devtools.midas.email.EmailService;
 import org.flymars.devtools.midas.gitlab.GitLabProjectService;
+import org.flymars.devtools.midas.report.ReportTemplate;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -320,6 +321,12 @@ public class ReportPreviewDialog extends JDialog {
             @Override
             protected Boolean doInBackground() {
                 try {
+                    // Update report content with user's edits
+                    String editedMarkdown = reportTextArea.getText();
+                    report.setMarkdownContent(editedMarkdown);
+                    // Update HTML content from edited markdown
+                    report.setHtmlContent(convertMarkdownToHtml(editedMarkdown));
+
                     emailService.sendReport(report).get();
                     return true;
                 } catch (Exception e) {
@@ -371,6 +378,62 @@ public class ReportPreviewDialog extends JDialog {
             }
         };
         worker.execute();
+    }
+
+    /**
+     * Convert markdown to HTML for email content
+     */
+    private String convertMarkdownToHtml(String markdown) {
+        if (markdown == null || markdown.isEmpty()) {
+            return "";
+        }
+
+        StringBuilder html = new StringBuilder();
+        html.append("<!DOCTYPE html>\n");
+        html.append("<html lang=\"zh-CN\">\n");
+        html.append("<head>\n");
+        html.append("    <meta charset=\"UTF-8\">\n");
+        html.append("    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n");
+        html.append("    <title>开发周报</title>\n");
+        html.append("    <style>\n");
+        html.append(ReportTemplate.getBaseCSS());
+        html.append("    </style>\n");
+        html.append("</head>\n");
+        html.append("<body>\n");
+        html.append("    <div class=\"container\">\n");
+        html.append(markdownToHTML(markdown));
+        html.append("    </div>\n");
+        html.append("</body>\n");
+        html.append("</html>\n");
+
+        return html.toString();
+    }
+
+    /**
+     * Simple markdown to HTML converter
+     */
+    private String markdownToHTML(String markdown) {
+        if (markdown == null) {
+            return "";
+        }
+
+        String html = markdown
+                .replaceAll("# (.*)", "<h1>$1</h1>")
+                .replaceAll("### (.*)", "<h3>$1</h3>")
+                .replaceAll("## (.*)", "<h2>$1</h2>")
+                .replaceAll("- (.*)", "<li>$1</li>")
+                .replaceAll("\\*\\*(.*?)\\*\\*", "<strong>$1</strong>")
+                .replaceAll("\\*(.*?)\\*", "<em>$1</em>");
+
+        // Wrap lists
+        if (html.contains("<li>")) {
+            html = "<ul>" + html + "</ul>";
+        }
+
+        // Convert line breaks
+        html = html.replaceAll("\n", "<br>\n");
+
+        return html;
     }
 
     /**
