@@ -88,15 +88,11 @@ public class PromptTemplate {
         prompt.append("{\n");
 
         if (isEnglish) {
-            prompt.append("  \"summary\": \"Concise summary of main work completed this week. Organize BY PROJECT with subsections. Each project summary should be 3-5 bullet points max.\",\n");
-            prompt.append("  \"technicalHighlights\": \"Key technical achievements and decisions ONLY. Focus on: core technical solutions, important architectural changes, significant optimizations. Group by project. Limit to 2-3 items per project.\",\n");
-            prompt.append("  \"problemsAndSolutions\": \"Only problems that were actually SOLVED this week. Format as table with | Problem | Solution | columns. Do not include theoretical issues.\",\n");
-            prompt.append("  \"nextWeekPlans\": \"Brief suggestions based on THIS WEEK's work. 2-3 items per project max. Focus on follow-up tasks and immediate next steps.\"\n");
+            prompt.append("  \"summary\": \"Concise summary of main work completed this week. Organize BY CATEGORY with subsections. Categories include: Product Development, External Support, Organization Building, etc. Each item should use format: 1) 2) 3). Be formal and concise.\",\n");
+            prompt.append("  \"nextWeekPlans\": \"Brief suggestions based on THIS WEEK's work. Each item should use format: 1、2、3、. Focus on follow-up tasks and immediate next steps.\"\n");
         } else {
-            prompt.append("  \"summary\": \"本周工作完成情况的简要总结。按项目分组，每个项目3-5个要点。\",\n");
-            prompt.append("  \"technicalHighlights\": \"仅包含关键技术成果和决策。聚焦于：核心技术方案、重要架构变更、重大性能优化。按项目分组，每个项目2-3项。\",\n");
-            prompt.append("  \"problemsAndSolutions\": \"仅包含本周实际解决的问题。使用表格格式，列：| 问题 | 解决方案 |。不要包含理论问题。\",\n");
-            prompt.append("  \"nextWeekPlans\": \"基于本周工作的简要建议。每个项目2-3项，聚焦于跟进任务和下一步计划。\"\n");
+            prompt.append("  \"summary\": \"本周工作完成情况的简要总结。按分类组织，包括：产品研发、外部支持、组织建设等。使用格式：一、类别名\\n1）具体工作1\\n2）具体工作2。语言端庄严谨、简洁精炼。\",\n");
+            prompt.append("  \"nextWeekPlans\": \"基于本周工作的简要建议。使用格式：1、具体计划1\\n2、具体计划2。聚焦于跟进任务和下一步计划。\"\n");
         }
 
         prompt.append("}\n");
@@ -106,24 +102,26 @@ public class PromptTemplate {
 
         if (isEnglish) {
             prompt.append("1. Return ONLY the JSON object, no additional text or markdown formatting outside the JSON\n");
-            prompt.append("2. BE CONCISE - Use bullet points, avoid long paragraphs\n");
-            prompt.append("3. Focus on OUTCOMES, not process. WHAT was done, not HOW\n");
-            prompt.append("4. Each project section: maximum 5 bullet points for summary, 3 for technical highlights\n");
-            prompt.append("5. Omit trivial changes (formatting, comments, minor refactors)\n");
-            prompt.append("6. Merge related commits into single points\n");
-            prompt.append("7. Use markdown formatting within JSON strings: ### for project names, - for bullet points, | for tables\n");
-            prompt.append("8. Keep each field under 500 characters if possible\n");
-            prompt.append("9. Write the report in English\n\n");
+            prompt.append("2. BE CONCISE AND FORMAL - Use professional business language\n");
+            prompt.append("3. Organize work by CATEGORY (Product Development, External Support, Organization Building, etc.)\n");
+            prompt.append("4. Format: 一、Category Name\\n1) Specific work item\\n2) Specific work item\n");
+            prompt.append("5. Each category should have 2-5 items maximum\n");
+            prompt.append("6. Omit trivial changes (formatting, comments, minor refactors)\n");
+            prompt.append("7. Merge related commits into single points\n");
+            prompt.append("8. Use simple Chinese numbering format: 一、二、三 for categories, 1) 2) 3) for items\n");
+            prompt.append("9. Keep each field under 500 characters if possible\n");
+            prompt.append("10. Write the report in English\n\n");
         } else {
             prompt.append("1. 只返回JSON对象，不要有额外的文本或markdown格式\n");
-            prompt.append("2. 简洁精炼 - 使用要点列表，避免长段落\n");
-            prompt.append("3. 聚焦结果，而非过程。关注\"做了什么\"，而非\"怎么做的\"\n");
-            prompt.append("4. 每个项目部分：总结最多5个要点，技术亮点最多3个\n");
-            prompt.append("5. 省略琐碎改动（格式调整、注释修改、小型重构）\n");
-            prompt.append("6. 将相关的提交合并为一个要点\n");
-            prompt.append("7. 在JSON字符串内使用markdown格式：### 表示项目名称，- 表示要点，| 表示表格\n");
-            prompt.append("8. 每个字段尽量控制在500字符以内\n");
-            prompt.append("9. 使用中文撰写报告\n\n");
+            prompt.append("2. 简洁精炼、端庄严谨 - 使用正式商务语言\n");
+            prompt.append("3. 按分类组织工作（产品研发、外部支持、组织建设等）\n");
+            prompt.append("4. 格式：一、分类名称\\n1）具体工作1\\n2）具体工作2\n");
+            prompt.append("5. 每个分类最多5项\n");
+            prompt.append("6. 省略琐碎改动（格式调整、注释修改、小型重构）\n");
+            prompt.append("7. 将相关的提交合并为一个要点\n");
+            prompt.append("8. 使用中文数字编号：一、二、三 表示分类，1）2）3）表示具体项目\n");
+            prompt.append("9. 每个字段尽量控制在500字符以内\n");
+            prompt.append("10. 使用中文撰写报告\n\n");
         }
 
         prompt.append("Style examples:\n");
@@ -138,6 +136,13 @@ public class PromptTemplate {
             prompt.append("- ✅ '重构缓存层以提升性能'\n");
             prompt.append("- ❌ '调查了数据库连接的问题...'\n");
             prompt.append("- ✅ '修复数据库连接超时问题'\n");
+            prompt.append("\n示例格式：\n");
+            prompt.append("一、产品研发\n");
+            prompt.append("1）跟踪各产品补丁集\n");
+            prompt.append("2）AI Coding功能验证\n");
+            prompt.append("\n下周计划\n");
+            prompt.append("1、数据链共建立项事宜\n");
+            prompt.append("2、日照银行交流\n");
         }
 
         return prompt.toString();

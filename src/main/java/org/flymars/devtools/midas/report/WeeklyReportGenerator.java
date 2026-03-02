@@ -43,12 +43,15 @@ public class WeeklyReportGenerator {
     }
 
     /**
-     * Generate a report for the current week
+     * Generate a report for the last week (previous week)
      */
     public WeeklyReport generateCurrentWeekReport() {
         System.out.println("[Midas] generateCurrentWeekReport() called");
         LocalDate today = LocalDate.now();
-        LocalDate weekStart = today.with(DayOfWeek.MONDAY);
+        // Get this week's Monday
+        LocalDate thisWeekStart = today.with(DayOfWeek.MONDAY);
+        // Last week is the previous 7 days
+        LocalDate weekStart = thisWeekStart.minusWeeks(1);
         LocalDate weekEnd = weekStart.plusDays(6);
         System.out.println("[Midas] Week range: " + weekStart + " to " + weekEnd);
         System.out.println("[Midas] Calling generateReport()...");

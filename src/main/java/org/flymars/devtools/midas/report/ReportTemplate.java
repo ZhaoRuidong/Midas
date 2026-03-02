@@ -38,42 +38,20 @@ public class ReportTemplate {
         // Main work content (from AI)
         if (report.getSummary() != null && !report.getSummary().isEmpty()) {
             if (isEnglish) {
-                md.append("## 💡 Main Work Content\n\n");
+                md.append("## Main Work Content\n\n");
             } else {
-                md.append("## 💡 主要工作内容\n\n");
+                md.append("## 主要工作内容\n\n");
             }
             md.append(report.getSummary());
-            md.append("\n\n");
-        }
-
-        // Technical highlights
-        if (report.getTechnicalHighlights() != null && !report.getTechnicalHighlights().isEmpty()) {
-            if (isEnglish) {
-                md.append("## 🔍 Technical Highlights\n\n");
-            } else {
-                md.append("## 🔍 技术要点\n\n");
-            }
-            md.append(report.getTechnicalHighlights());
-            md.append("\n\n");
-        }
-
-        // Problems and solutions
-        if (report.getProblemsAndSolutions() != null && !report.getProblemsAndSolutions().isEmpty()) {
-            if (isEnglish) {
-                md.append("## ⚠️ Problems & Solutions\n\n");
-            } else {
-                md.append("## ⚠️ 问题与解决方案\n\n");
-            }
-            md.append(report.getProblemsAndSolutions());
             md.append("\n\n");
         }
 
         // Next week plans
         if (report.getNextWeekPlans() != null && !report.getNextWeekPlans().isEmpty()) {
             if (isEnglish) {
-                md.append("## 🎯 Next Week Plans\n\n");
+                md.append("## Next Week Plans\n\n");
             } else {
-                md.append("## 🎯 下周计划\n\n");
+                md.append("## 下周计划\n\n");
             }
             md.append(report.getNextWeekPlans());
             md.append("\n");
@@ -152,39 +130,19 @@ public class ReportTemplate {
         // Main content
         if (report.getSummary() != null && !report.getSummary().isEmpty()) {
             if (isEnglish) {
-                html.append("        <h2>💡 Main Work Content</h2>\n");
+                html.append("        <h2>Main Work Content</h2>\n");
             } else {
-                html.append("        <h2>💡 主要工作内容</h2>\n");
+                html.append("        <h2>主要工作内容</h2>\n");
             }
             html.append("        <div class=\"content\">").append(markdownToHTML(report.getSummary())).append("</div>\n");
-        }
-
-        // Technical highlights
-        if (report.getTechnicalHighlights() != null && !report.getTechnicalHighlights().isEmpty()) {
-            if (isEnglish) {
-                html.append("        <h2>🔍 Technical Highlights</h2>\n");
-            } else {
-                html.append("        <h2>🔍 技术要点</h2>\n");
-            }
-            html.append("        <div class=\"content\">").append(markdownToHTML(report.getTechnicalHighlights())).append("</div>\n");
-        }
-
-        // Problems
-        if (report.getProblemsAndSolutions() != null && !report.getProblemsAndSolutions().isEmpty()) {
-            if (isEnglish) {
-                html.append("        <h2>⚠️ Problems & Solutions</h2>\n");
-            } else {
-                html.append("        <h2>⚠️ 问题与解决方案</h2>\n");
-            }
-            html.append("        <div class=\"content\">").append(markdownToHTML(report.getProblemsAndSolutions())).append("</div>\n");
         }
 
         // Next week
         if (report.getNextWeekPlans() != null && !report.getNextWeekPlans().isEmpty()) {
             if (isEnglish) {
-                html.append("        <h2>🎯 Next Week Plans</h2>\n");
+                html.append("        <h2>Next Week Plans</h2>\n");
             } else {
-                html.append("        <h2>🎯 下周计划</h2>\n");
+                html.append("        <h2>下周计划</h2>\n");
             }
             html.append("        <div class=\"content\">").append(markdownToHTML(report.getNextWeekPlans())).append("</div>\n");
         }
