@@ -25,6 +25,20 @@
     ]]></description>
 
     <change-notes><![CDATA[
+        <h3>Version 1.1.0</h3>
+        <ul>
+            <li>AI-powered commit message generation in Git Commit dialog</li>
+            <li>Support local agent (Claude Code, Codex CLI, OpenCode) for commit message generation</li>
+            <li>Configurable prompt for local agent execution</li>
+            <li>Option to include or exclude config files (.properties, .xml, .yml, etc.) in commit message generation</li>
+            <li>Multi-repo support: correctly identifies git root per change for local agent execution</li>
+            <li>Dynamic IDEA install path detection instead of hardcoded path</li>
+            <li>Bundle OkHttp and Gson dependencies with the plugin</li>
+            <li>Fix timezone handling in GitLab API date queries</li>
+            <li>Improve commit timestamp parsing with OffsetDateTime support</li>
+            <li>Enhance user identity matching with display name and normalized comparison</li>
+            <li>Smart report week calculation: weekdays show previous full week, weekends show current week</li>
+        </ul>
         <h3>Version 1.0.0</h3>
         <ul>
             <li>GitLab REST API integration for fetching commits</li>
