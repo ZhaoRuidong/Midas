@@ -624,6 +624,7 @@ public final class GitLabProjectService {
             GitLabInstance instance = instanceService.getInstance(sample.getGitlabInstanceId());
             if (instance != null) {
                 LOG.warn("  Instance userName=" + instance.getUserName() +
+                         ", userDisplayName=" + instance.getUserDisplayName() +
                          ", userEmail=" + instance.getUserEmail());
             }
         }
@@ -642,23 +643,42 @@ public final class GitLabProjectService {
         }
 
         String userName = instance.getUserName();
+        String userDisplayName = instance.getUserDisplayName();
         String userEmail = instance.getUserEmail();
 
-        // If no username is set, cannot filter - include all commits
-        if (userName == null && userEmail == null) {
-            LOG.warn("No current username/email set for instance: " + instance.getId() +
+        // If no user identity is set, cannot filter - include all commits
+        if (isBlank(userName) && isBlank(userDisplayName) && isBlank(userEmail)) {
+            LOG.warn("No current user identity set for instance: " + instance.getId() +
                      " (" + instance.getName() + "). Please test connection first.");
             // For now, return true to show all commits
             return true;
         }
 
-        // Match by username or email
-        boolean usernameMatches = userName != null
-                && userName.equals(commit.getAuthor());
-        boolean emailMatches = userEmail != null
-                && userEmail.equals(commit.getAuthorEmail());
+        // GitLab commit author is usually the display name, not the username.
+        boolean usernameMatches = equalsNormalized(userName, commit.getAuthor());
+        boolean displayNameMatches = equalsNormalized(userDisplayName, commit.getAuthor());
+        boolean emailMatches = equalsNormalized(userEmail, commit.getAuthorEmail());
 
-        return usernameMatches || emailMatches;
+        return usernameMatches || displayNameMatches || emailMatches;
+    }
+
+    private boolean equalsNormalized(String left, String right) {
+        if (isBlank(left) || isBlank(right)) {
+            return false;
+        }
+        return normalizeIdentity(left).equals(normalizeIdentity(right));
+    }
+
+    private String normalizeIdentity(String value) {
+        String normalized = value.trim();
+        if (normalized.startsWith("@")) {
+            normalized = normalized.substring(1);
+        }
+        return normalized.toLowerCase(Locale.ROOT);
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
     }
 
     // ==================== Private Methods ====================

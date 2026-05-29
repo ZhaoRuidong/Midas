@@ -14,7 +14,9 @@ import org.flymars.devtools.midas.gitlab.model.GitLabProject;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.time.LocalTime;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -209,9 +211,13 @@ public class GitLabApiClient {
             int page = 1;
             boolean hasMore = true;
 
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
-            String sinceStr = since.atStartOfDay().format(formatter);
-            String untilStr = until.atTime(23, 59, 59).format(formatter);
+            ZoneId systemZone = ZoneId.systemDefault();
+            String sinceStr = DateTimeFormatter.ISO_INSTANT.format(
+                    since.atStartOfDay(systemZone).toInstant()
+            );
+            String untilStr = DateTimeFormatter.ISO_INSTANT.format(
+                    until.atTime(LocalTime.MAX).atZone(systemZone).toInstant()
+            );
 
             while (hasMore) {
                 try {

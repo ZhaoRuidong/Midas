@@ -14,6 +14,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -47,12 +48,8 @@ public class WeeklyReportGenerator {
      */
     public WeeklyReport generateCurrentWeekReport() {
         System.out.println("[Midas] generateCurrentWeekReport() called");
-        LocalDate today = LocalDate.now();
-        // Get this week's Monday
-        LocalDate thisWeekStart = today.with(DayOfWeek.MONDAY);
-        // Last week is the previous 7 days
-        LocalDate weekStart = thisWeekStart.minusWeeks(1);
-        LocalDate weekEnd = weekStart.plusDays(6);
+        LocalDate weekStart = getDefaultReportWeekStart(LocalDate.now());
+        LocalDate weekEnd = getDefaultReportWeekEnd(LocalDate.now());
         System.out.println("[Midas] Week range: " + weekStart + " to " + weekEnd);
         System.out.println("[Midas] Calling generateReport()...");
         WeeklyReport report = generateReport(weekStart, weekEnd);
@@ -147,6 +144,48 @@ public class WeeklyReportGenerator {
         WeeklyReport report = generateReportAsync(weekStart, weekEnd).join();
         System.out.println("[Midas] generateReport() join() completed");
         return report;
+    }
+
+    /**
+     * Get the Monday of the last fully completed week for a given reference date.
+     */
+    public static LocalDate getLastCompletedWeekStart(LocalDate referenceDate) {
+        LocalDate thisWeekStart = referenceDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        return thisWeekStart.minusWeeks(1);
+    }
+
+    /**
+     * Get the Sunday of the last fully completed week for a given reference date.
+     */
+    public static LocalDate getLastCompletedWeekEnd(LocalDate referenceDate) {
+        return getLastCompletedWeekStart(referenceDate).plusDays(6);
+    }
+
+    /**
+     * Default report start date:
+     * weekdays -> previous full week, weekends -> current week start.
+     */
+    public static LocalDate getDefaultReportWeekStart(LocalDate referenceDate) {
+        if (isWeekend(referenceDate)) {
+            return referenceDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        }
+        return getLastCompletedWeekStart(referenceDate);
+    }
+
+    /**
+     * Default report end date:
+     * weekdays -> previous full week end, weekends -> today.
+     */
+    public static LocalDate getDefaultReportWeekEnd(LocalDate referenceDate) {
+        if (isWeekend(referenceDate)) {
+            return referenceDate;
+        }
+        return getLastCompletedWeekEnd(referenceDate);
+    }
+
+    private static boolean isWeekend(LocalDate date) {
+        DayOfWeek dayOfWeek = date.getDayOfWeek();
+        return dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY;
     }
 
     /**

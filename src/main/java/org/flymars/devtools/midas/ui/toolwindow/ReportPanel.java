@@ -437,11 +437,11 @@ public class ReportPanel {
                         return List.of();
                     }
 
-                    LocalDate today = LocalDate.now();
-                    LocalDate weekAgo = today.minusDays(7);
+                    LocalDate weekStart = WeeklyReportGenerator.getDefaultReportWeekStart(LocalDate.now());
+                    LocalDate weekEnd = WeeklyReportGenerator.getDefaultReportWeekEnd(LocalDate.now());
 
                     return gitlabProjectService
-                            .getMyCommitsForWeek(weekAgo, today, selectedProjects)
+                            .getMyCommitsForWeek(weekStart, weekEnd, selectedProjects)
                             .get();
 
                 } catch (Exception e) {
@@ -460,10 +460,14 @@ public class ReportPanel {
                         statusLabel.setText("⚠️ No projects selected. Go to Settings → Midas → GitLab to select projects.");
                         statusLabel.setForeground(Color.ORANGE);
                     } else if (commits.isEmpty()) {
-                        statusLabel.setText("No commits found in the last 7 days for the selected projects");
+                        LocalDate weekStart = WeeklyReportGenerator.getDefaultReportWeekStart(LocalDate.now());
+                        LocalDate weekEnd = WeeklyReportGenerator.getDefaultReportWeekEnd(LocalDate.now());
+                        statusLabel.setText("No commits found for report week " + weekStart + " to " + weekEnd);
                         statusLabel.setForeground(new Color(150, 150, 0));
                     } else {
-                        statusLabel.setText("Showing " + commits.size() + " of your commits from last 7 days");
+                        LocalDate weekStart = WeeklyReportGenerator.getDefaultReportWeekStart(LocalDate.now());
+                        LocalDate weekEnd = WeeklyReportGenerator.getDefaultReportWeekEnd(LocalDate.now());
+                        statusLabel.setText("Showing " + commits.size() + " of your commits for report week " + weekStart + " to " + weekEnd);
                         statusLabel.setForeground(new Color(0, 150, 0));
                     }
                 } catch (Exception e) {

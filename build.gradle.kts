@@ -1,3 +1,5 @@
+import java.io.File
+
 plugins {
     id("java")
     id("org.jetbrains.kotlin.jvm") version "2.1.20"
@@ -16,10 +18,21 @@ repositories {
     }
 }
 
+val ideaInstallPath = listOfNotNull(
+    providers.gradleProperty("ideaPath").orNull,
+    providers.environmentVariable("IDEA_HOME").orNull,
+    "${System.getProperty("user.home")}/Applications/IntelliJ IDEA 2026.1.app",
+    "${System.getProperty("user.home")}/Applications/IntelliJ IDEA.app",
+    "/Applications/IntelliJ IDEA.app",
+).map(::File)
+    .firstOrNull(File::isDirectory)
+    ?.absolutePath
+    ?: error("IntelliJ IDEA installation not found. Set -PideaPath=/path/to/IntelliJ IDEA.app or IDEA_HOME.")
+
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin.html
 dependencies {
     intellijPlatform {
-        local("/Users/zhaord/Applications/IntelliJ IDEA.app")
+        local(ideaInstallPath)
         testFramework(org.jetbrains.intellij.platform.gradle.TestFrameworkType.Platform)
 
         // Add plugin dependencies for compilation here:
@@ -42,6 +55,9 @@ dependencies {
 
     // Jakarta Mail for email functionality (using latest secure version)
     implementation("org.eclipse.angus:angus-mail:2.0.3")
+    // Bundle HTTP/JSON libraries with the plugin instead of relying on IDE classpath leakage.
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.google.code.gson:gson:2.11.0")
 }
 
 intellijPlatform {

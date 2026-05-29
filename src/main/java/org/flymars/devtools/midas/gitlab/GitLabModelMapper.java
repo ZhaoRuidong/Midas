@@ -8,6 +8,8 @@ import org.flymars.devtools.midas.gitlab.model.GitLabProject;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -48,7 +50,7 @@ public class GitLabModelMapper {
 
         try {
             CommitInfo.CommitType commitType = determineCommitType(gitlabCommit.getMessage());
-            LocalDateTime timestamp = parseTimestamp(gitlabCommit.getCreatedAt());
+            LocalDateTime timestamp = parseTimestamp(resolveTimestamp(gitlabCommit));
             String ticketId = extractTicketId(gitlabCommit.getMessage());
 
             CommitInfo commitInfo = CommitInfo.builder()
@@ -134,8 +136,19 @@ public class GitLabModelMapper {
             return LocalDateTime.now();
         }
 
-        // Remove timezone suffix if present
-        String normalized = iso8601.replace("Z", "").replace("\\+\\d{2}:\\d{2}$", "");
+        String normalized = iso8601.trim();
+
+        try {
+            return OffsetDateTime.parse(normalized)
+                    .atZoneSameInstant(ZoneId.systemDefault())
+                    .toLocalDateTime();
+        } catch (DateTimeParseException e) {
+            // Fall back to legacy parsers below.
+        }
+
+        if (normalized.endsWith("Z")) {
+            normalized = normalized.substring(0, normalized.length() - 1);
+        }
 
         for (DateTimeFormatter format : TIMESTAMP_FORMATS) {
             try {
@@ -147,6 +160,16 @@ public class GitLabModelMapper {
 
         LOG.warn("Failed to parse timestamp: " + iso8601);
         return LocalDateTime.now();
+    }
+
+    private String resolveTimestamp(GitLabCommit gitlabCommit) {
+        if (gitlabCommit.getCommittedDate() != null && !gitlabCommit.getCommittedDate().isEmpty()) {
+            return gitlabCommit.getCommittedDate();
+        }
+        if (gitlabCommit.getAuthoredDate() != null && !gitlabCommit.getAuthoredDate().isEmpty()) {
+            return gitlabCommit.getAuthoredDate();
+        }
+        return gitlabCommit.getCreatedAt();
     }
 
     /**
