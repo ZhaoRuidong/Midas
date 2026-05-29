@@ -263,6 +263,35 @@ public final class ConfigManager implements PersistentStateComponent<ConfigManag
         state.reportLanguage = language.name();
     }
 
+    // Commit Message Settings
+    public PluginConfig.CommitMsgProvider getCommitMsgProvider() {
+        try {
+            return PluginConfig.CommitMsgProvider.valueOf(state.commitMsgProvider);
+        } catch (Exception e) {
+            return PluginConfig.CommitMsgProvider.API;
+        }
+    }
+
+    public void setCommitMsgProvider(PluginConfig.CommitMsgProvider provider) {
+        state.commitMsgProvider = provider.name();
+    }
+
+    public String getCommitMsgLocalPrompt() {
+        return state.commitMsgLocalPrompt;
+    }
+
+    public void setCommitMsgLocalPrompt(String prompt) {
+        state.commitMsgLocalPrompt = prompt;
+    }
+
+    public boolean isCommitMsgConfigFileEnabled() {
+        return state.commitMsgConfigFileEnabled;
+    }
+
+    public void setCommitMsgConfigFileEnabled(boolean enabled) {
+        state.commitMsgConfigFileEnabled = enabled;
+    }
+
     /**
      * State class for XML serialization
      */
@@ -330,6 +359,11 @@ public final class ConfigManager implements PersistentStateComponent<ConfigManag
 
         // Selected projects for current report
         public List<String> selectedProjectIds = new ArrayList<>();
+
+        // Commit message generation settings
+        public String commitMsgProvider = "API";
+        public String commitMsgLocalPrompt = "Please commit these changes.";
+        public boolean commitMsgConfigFileEnabled = false;
     }
 
     /**

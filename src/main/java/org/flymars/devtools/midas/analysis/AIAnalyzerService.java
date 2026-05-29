@@ -358,6 +358,22 @@ public final class AIAnalyzerService {
     }
 
     /**
+     * Generate a commit message from diff content
+     */
+    public CompletableFuture<String> generateCommitMessage(String diffContent, ConfigManager config) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                String prompt = PromptTemplate.buildCommitMessagePrompt(diffContent, config);
+                AIResponse response = callAI(prompt, config);
+                return response.content != null ? response.content.trim() : "";
+            } catch (Exception e) {
+                LOG.error("Error generating commit message", e);
+                throw new RuntimeException("Failed to generate commit message: " + e.getMessage(), e);
+            }
+        });
+    }
+
+    /**
      * Test the AI connection
      */
     public CompletableFuture<Boolean> testConnection(ConfigManager config) {

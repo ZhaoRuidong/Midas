@@ -89,4 +89,11 @@ public class PluginConfig {
             return localeCode;
         }
     }
+
+    public enum CommitMsgProvider {
+        API,
+        CLAUDE,
+        CODEX,
+        OPENCODE
+    }
 }

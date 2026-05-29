@@ -169,6 +169,46 @@ public class PromptTemplate {
     }
 
     /**
+     * Build a prompt for generating a commit message from diff content
+     */
+    public static String buildCommitMessagePrompt(String diffContent, ConfigManager config) {
+        PluginConfig.ReportLanguage language = config.getReportLanguage();
+        boolean isEnglish = language == PluginConfig.ReportLanguage.ENGLISH;
+
+        StringBuilder prompt = new StringBuilder();
+
+        if (isEnglish) {
+            prompt.append("You are an expert at writing Git commit messages.\n\n");
+            prompt.append("Analyze the following staged diff and generate a concise commit message.\n\n");
+            prompt.append("## Staged Changes\n\n");
+            prompt.append("```\n");
+            prompt.append(diffContent);
+            prompt.append("\n```\n\n");
+            prompt.append("Requirements:\n");
+            prompt.append("1. Use conventional commits format: type(scope): description\n");
+            prompt.append("2. Types: feat, fix, refactor, docs, test, chore, style, perf\n");
+            prompt.append("3. Keep the subject line under 72 characters\n");
+            prompt.append("4. If the changes are complex, add a blank line then a brief body\n");
+            prompt.append("5. Return ONLY the commit message text, nothing else\n");
+        } else {
+            prompt.append("你是一名 Git commit message 撰写专家。\n\n");
+            prompt.append("请分析以下暂存区的 diff 内容，生成简洁的 commit message。\n\n");
+            prompt.append("## 暂存区变更\n\n");
+            prompt.append("```\n");
+            prompt.append(diffContent);
+            prompt.append("\n```\n\n");
+            prompt.append("要求：\n");
+            prompt.append("1. 使用 conventional commits 格式：type(scope): description\n");
+            prompt.append("2. 类型包括：feat, fix, refactor, docs, test, chore, style, perf\n");
+            prompt.append("3. 主题行控制在 72 个字符以内\n");
+            prompt.append("4. 如果变更较复杂，在空行后添加简要说明\n");
+            prompt.append("5. 只返回 commit message 文本，不要有其他内容\n");
+        }
+
+        return prompt.toString();
+    }
+
+    /**
      * Append commits grouped by project
      */
     private static void appendCommitsByProject(StringBuilder prompt, List<CommitInfo> commits) {

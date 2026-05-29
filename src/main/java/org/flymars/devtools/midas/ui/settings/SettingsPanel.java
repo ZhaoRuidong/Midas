@@ -6,6 +6,7 @@ import com.intellij.ui.*;
 import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBPasswordField;
+import com.intellij.ui.components.JBTextArea;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.util.ui.FormBuilder;
 import org.flymars.devtools.midas.config.ConfigManager;
@@ -79,6 +80,11 @@ public class SettingsPanel {
     private JBTextField reminderTimeField;
     private JButton testEmailButton;
 
+    // Commit message settings
+    private JComboBox<CommitMsgProviderItem> commitMsgProviderCombo;
+    private JBTextArea commitMsgLocalPromptArea;
+    private JBCheckBox commitMsgConfigFileCheckBox;
+
     public SettingsPanel(Project project) {
         this.project = project;
         this.instanceService = GitLabInstanceService.getInstance(project);
@@ -97,6 +103,7 @@ public class SettingsPanel {
         tabbedPane.addTab("General", createGeneralPanel());
         tabbedPane.addTab("GitLab", createGitLabPanel());
         tabbedPane.addTab("AI Configuration", createAIPanel());
+        tabbedPane.addTab("Commit Message", createCommitMessagePanel());
         tabbedPane.addTab("Email Configuration", createEmailPanel());
 
         mainPanel.add(tabbedPane, BorderLayout.CENTER);
@@ -525,6 +532,69 @@ public class SettingsPanel {
                 .getPanel();
     }
 
+    private JPanel createCommitMessagePanel() {
+        commitMsgProviderCombo = new JComboBox<>(new CommitMsgProviderItem[]{
+                new CommitMsgProviderItem(PluginConfig.CommitMsgProvider.API, "已配置的 AI API"),
+                new CommitMsgProviderItem(PluginConfig.CommitMsgProvider.CLAUDE, "Claude Code (本地)"),
+                new CommitMsgProviderItem(PluginConfig.CommitMsgProvider.CODEX, "Codex CLI (本地)"),
+                new CommitMsgProviderItem(PluginConfig.CommitMsgProvider.OPENCODE, "OpenCode (本地)")
+        });
+
+        commitMsgProviderCombo.addActionListener(e -> {
+            CommitMsgProviderItem selected = (CommitMsgProviderItem) commitMsgProviderCombo.getSelectedItem();
+            boolean isLocal = selected != null && selected.getProvider() != PluginConfig.CommitMsgProvider.API;
+            commitMsgLocalPromptArea.setEnabled(isLocal);
+        });
+
+        commitMsgLocalPromptArea = new JBTextArea(4, 40);
+        commitMsgLocalPromptArea.setText("Please commit these changes.");
+        commitMsgLocalPromptArea.setEnabled(false);
+        commitMsgLocalPromptArea.setLineWrap(true);
+        commitMsgLocalPromptArea.setWrapStyleWord(true);
+        JScrollPane promptScroll = new JScrollPane(commitMsgLocalPromptArea);
+
+        commitMsgConfigFileCheckBox = new JBCheckBox("启用配置文件提交（包含 .properties、.xml 等配置文件的变更）");
+
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        // Provider group
+        JPanel providerGroup = createGroupPanel("Commit Message 生成方式");
+        JPanel providerFields = FormBuilder.createFormBuilder()
+                .addLabeledComponent(new JBLabel("生成方式:"), commitMsgProviderCombo)
+                .addVerticalGap(5)
+                .addLabeledComponent(new JBLabel("说明:"), new JBLabel("选择「已配置的 AI API」使用上方 AI Configuration 中的设置；选择本地 Agent 需要在 PATH 中安装对应工具。"))
+                .addComponentFillVertically(new JPanel(), 0)
+                .getPanel();
+        providerGroup.add(providerFields);
+        mainPanel.add(providerGroup);
+        mainPanel.add(Box.createVerticalStrut(10));
+
+        // Prompt group
+        JPanel promptGroup = createGroupPanel("本地 Agent Prompt");
+        JPanel promptFields = FormBuilder.createFormBuilder()
+                .addLabeledComponent(new JBLabel("Prompt:"), promptScroll)
+                .addVerticalGap(5)
+                .addComponent(new JBLabel("仅在选择了本地 Agent 时生效。变更的 diff 将附加在 prompt 后面。"))
+                .addComponentFillVertically(new JPanel(), 0)
+                .getPanel();
+        promptGroup.add(promptFields);
+        mainPanel.add(promptGroup);
+        mainPanel.add(Box.createVerticalStrut(10));
+
+        // Config file group
+        JPanel configFileGroup = createGroupPanel("配置文件提交");
+        JPanel configFileFields = FormBuilder.createFormBuilder()
+                .addComponent(commitMsgConfigFileCheckBox)
+                .addComponentFillVertically(new JPanel(), 0)
+                .getPanel();
+        configFileGroup.add(configFileFields);
+        mainPanel.add(configFileGroup);
+
+        return mainPanel;
+    }
+
     private JPanel createEmailPanel() {
         smtpHostField = new JBTextField(40);
         smtpPortField = new JBTextField(10);
@@ -679,6 +749,12 @@ public class SettingsPanel {
 
         if (!reminderTimeField.getText().equals(config.getReminderTime())) return true;
 
+        // Commit message settings
+        CommitMsgProviderItem selectedProvider = (CommitMsgProviderItem) commitMsgProviderCombo.getSelectedItem();
+        if (selectedProvider != null && selectedProvider.getProvider() != config.getCommitMsgProvider()) return true;
+        if (!commitMsgLocalPromptArea.getText().equals(config.getCommitMsgLocalPrompt())) return true;
+        if (commitMsgConfigFileCheckBox.isSelected() != config.isCommitMsgConfigFileEnabled()) return true;
+
         return false;
     }
 
@@ -724,6 +800,14 @@ public class SettingsPanel {
             config.setReminderSchedule(reminderItem.getSchedule());
         }
         config.setReminderTime(reminderTimeField.getText());
+
+        // Save commit message settings
+        CommitMsgProviderItem selectedProvider = (CommitMsgProviderItem) commitMsgProviderCombo.getSelectedItem();
+        if (selectedProvider != null) {
+            config.setCommitMsgProvider(selectedProvider.getProvider());
+        }
+        config.setCommitMsgLocalPrompt(commitMsgLocalPromptArea.getText());
+        config.setCommitMsgConfigFileEnabled(commitMsgConfigFileCheckBox.isSelected());
 
         // Save GitLab instances
         saveInstances();
@@ -829,6 +913,19 @@ public class SettingsPanel {
             }
         }
         reminderTimeField.setText(config.getReminderTime());
+
+        // Commit message settings
+        PluginConfig.CommitMsgProvider commitProvider = config.getCommitMsgProvider();
+        for (int i = 0; i < commitMsgProviderCombo.getItemCount(); i++) {
+            CommitMsgProviderItem item = commitMsgProviderCombo.getItemAt(i);
+            if (item.getProvider() == commitProvider) {
+                commitMsgProviderCombo.setSelectedIndex(i);
+                break;
+            }
+        }
+        commitMsgLocalPromptArea.setText(config.getCommitMsgLocalPrompt());
+        commitMsgLocalPromptArea.setEnabled(commitProvider != PluginConfig.CommitMsgProvider.API);
+        commitMsgConfigFileCheckBox.setSelected(config.isCommitMsgConfigFileEnabled());
 
         // Reload GitLab instances and projects
         loadInstances();
@@ -1771,6 +1868,28 @@ public class SettingsPanel {
 
         public PluginConfig.ReminderSchedule getSchedule() {
             return schedule;
+        }
+
+        @Override
+        public String toString() {
+            return displayName;
+        }
+    }
+
+    /**
+     * Wrapper for commit message provider combo box items
+     */
+    private static class CommitMsgProviderItem {
+        private final PluginConfig.CommitMsgProvider provider;
+        private final String displayName;
+
+        public CommitMsgProviderItem(PluginConfig.CommitMsgProvider provider, String displayName) {
+            this.provider = provider;
+            this.displayName = displayName;
+        }
+
+        public PluginConfig.CommitMsgProvider getProvider() {
+            return provider;
         }
 
         @Override
