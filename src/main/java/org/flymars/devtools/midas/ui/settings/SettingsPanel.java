@@ -547,7 +547,7 @@ public class SettingsPanel {
         });
 
         commitMsgLocalPromptArea = new JBTextArea(4, 40);
-        commitMsgLocalPromptArea.setText("Please commit these changes.");
+        commitMsgLocalPromptArea.setText("Based on the following git diff, generate ONLY a commit message. Do NOT execute any git commands (no git add, git commit, or git push). Output the commit message text and nothing else.");
         commitMsgLocalPromptArea.setEnabled(false);
         commitMsgLocalPromptArea.setLineWrap(true);
         commitMsgLocalPromptArea.setWrapStyleWord(true);

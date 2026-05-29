@@ -119,8 +119,8 @@ public class GenerateCommitMessageAction extends AnAction {
                     }
                 }
 
-                LOG.info("Commit message generated. Length=" + message.length());
-                String finalMessage = message;
+                LOG.info("Commit message generated. Raw length=" + message.length());
+                String finalMessage = cleanCommitMessage(message);
                 ApplicationManager.getApplication().invokeLater(() -> {
                     if (commitMessagePanel != null) {
                         commitMessagePanel.setCommitMessage(finalMessage);
@@ -143,6 +143,28 @@ public class GenerateCommitMessageAction extends AnAction {
     private void restoreButton(@NotNull AnActionEvent e) {
         e.getPresentation().setEnabled(true);
         e.getPresentation().setText("Generate Commit Messages With Midas");
+    }
+
+    private String cleanCommitMessage(String raw) {
+        String cleaned = raw.trim();
+        // Remove markdown code block markers
+        if (cleaned.startsWith("```")) {
+            int firstNewline = cleaned.indexOf('\n');
+            if (firstNewline >= 0) {
+                cleaned = cleaned.substring(firstNewline + 1);
+            } else {
+                cleaned = cleaned.substring(3);
+            }
+        }
+        if (cleaned.endsWith("```")) {
+            cleaned = cleaned.substring(0, cleaned.length() - 3);
+        }
+        // Remove surrounding quotes if the entire message is quoted
+        if ((cleaned.startsWith("\"") && cleaned.endsWith("\"")) ||
+            (cleaned.startsWith("'") && cleaned.endsWith("'"))) {
+            cleaned = cleaned.substring(1, cleaned.length() - 1);
+        }
+        return cleaned.trim();
     }
 
     private ConfigManager getConfig(@NotNull AnActionEvent e) {
