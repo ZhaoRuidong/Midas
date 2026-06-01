@@ -13,18 +13,30 @@
     <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-description -->
     <description><![CDATA[
-        <p>Generate weekly reports from GitLab commits using AI analysis.</p>
+        <p><strong>Midas</strong> is a productivity plugin that automatically generates weekly work reports from your GitLab commits using AI-powered analysis.</p>
+        <h3>Key Features:</h3>
         <ul>
-            <li>Integrates with GitLab REST API</li>
-            <li>Supports multiple GitLab instances</li>
-            <li>Cross-project report generation</li>
-            <li>AI-powered intelligent summarization</li>
-            <li>Scheduled email delivery</li>
-            <li>Customizable report templates</li>
+            <li><strong>GitLab Integration</strong> — Connects to GitLab REST API to fetch commits across multiple projects and instances</li>
+            <li><strong>AI-Powered Summarization</strong> — Intelligent report generation using OpenAI, Anthropic Claude, or Zhipu AI (智谱AI)</li>
+            <li><strong>AI Commit Messages</strong> — Generate commit messages from staged changes using AI or local agents (Claude Code, Codex CLI, OpenCode)</li>
+            <li><strong>Cross-Project Reports</strong> — Aggregate commits from multiple GitLab projects into a single weekly report</li>
+            <li><strong>Daily Notes</strong> — Add manual notes to supplement commit data for more comprehensive reports</li>
+            <li><strong>Multi-Language</strong> — Generate reports in Chinese or English</li>
+            <li><strong>Scheduled Email Delivery</strong> — Automatic SMTP email delivery of weekly reports</li>
+            <li><strong>Modern UI</strong> — Built with IntelliJ Compose for a seamless IDE experience</li>
         </ul>
     ]]></description>
 
     <change-notes><![CDATA[
+        <h3>Version 1.2.0</h3>
+        <ul>
+            <li>Custom date picker with dark theme support</li>
+            <li>Responsive toolbar layout that adapts to narrow windows</li>
+            <li>Markdown preview for report editing</li>
+            <li>Remove external JXDatePicker dependency, use native Swing components</li>
+            <li>UI refinements: compact calendar popup, theme-aware icons</li>
+            <li>Report template and prompt improvements</li>
+        </ul>
         <h3>Version 1.1.0</h3>
         <ul>
             <li>AI-powered commit message generation in Git Commit dialog</li>

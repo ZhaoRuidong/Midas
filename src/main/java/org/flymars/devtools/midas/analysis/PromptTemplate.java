@@ -88,11 +88,11 @@ public class PromptTemplate {
         prompt.append("{\n");
 
         if (isEnglish) {
-            prompt.append("  \"summary\": \"Concise summary of main work completed this week. Organize BY CATEGORY with subsections. Categories include: Product Development, External Support, Organization Building, etc. Each item should use format: 1) 2) 3). Be formal and concise.\",\n");
-            prompt.append("  \"nextWeekPlans\": \"Brief suggestions based on THIS WEEK's work. Each item should use format: 1、2、3、. Focus on follow-up tasks and immediate next steps.\"\n");
+            prompt.append("  \"summary\": \"Concise summary of main work completed this week. Use fixed Markdown structure: ### 1. Product Development\\n\\n1. Specific work item\\n2. Specific work item\\n\\n### 2. External Support\\n\\n1. Specific support item. Use '1. No external support items.' when there is no external support. Keep blank lines between headings and numbered lists.\",\n");
+            prompt.append("  \"nextWeekPlans\": \"Brief suggestions based on THIS WEEK's work. Use standard Markdown numbered list format: 1. Plan item\\n2. Plan item. Keep blank lines around the list.\"\n");
         } else {
-            prompt.append("  \"summary\": \"本周工作完成情况的简要总结。按分类组织，包括：产品研发、外部支持、组织建设等。使用格式：一、类别名\\n1）具体工作1\\n2）具体工作2。语言端庄严谨、简洁精炼。\",\n");
-            prompt.append("  \"nextWeekPlans\": \"基于本周工作的简要建议。使用格式：1、具体计划1\\n2、具体计划2。聚焦于跟进任务和下一步计划。\"\n");
+            prompt.append("  \"summary\": \"本周工作完成情况的简要总结。使用固定Markdown结构：### 1. 产品研发\\n\\n1. 具体工作1\\n2. 具体工作2\\n\\n### 2. 外部支持\\n\\n1. 具体支持事项。没有外部支持内容时输出：1. 暂无外部支持事项。标题和数字列表之间必须保留空行。语言端庄严谨、简洁精炼。\",\n");
+            prompt.append("  \"nextWeekPlans\": \"基于本周工作的简要建议。使用标准Markdown数字列表：1. 具体计划1\\n2. 具体计划2。列表前后保留空行，聚焦于跟进任务和下一步计划。\"\n");
         }
 
         prompt.append("}\n");
@@ -103,23 +103,23 @@ public class PromptTemplate {
         if (isEnglish) {
             prompt.append("1. Return ONLY the JSON object, no additional text or markdown formatting outside the JSON\n");
             prompt.append("2. BE CONCISE AND FORMAL - Use professional business language\n");
-            prompt.append("3. Organize work by CATEGORY (Product Development, External Support, Organization Building, etc.)\n");
-            prompt.append("4. Format: 一、Category Name\\n1) Specific work item\\n2) Specific work item\n");
+            prompt.append("3. Use fixed category headings: ### 1. Product Development and ### 2. External Support\n");
+            prompt.append("4. Use standard Markdown numbered lists only: 1. item, 2. item. Do NOT use 1), 1）, 1、 or bullet-only lists\n");
             prompt.append("5. Each category should have 2-5 items maximum\n");
             prompt.append("6. Omit trivial changes (formatting, comments, minor refactors)\n");
             prompt.append("7. Merge related commits into single points\n");
-            prompt.append("8. Use simple Chinese numbering format: 一、二、三 for categories, 1) 2) 3) for items\n");
+            prompt.append("8. Keep a blank line after every heading and before every numbered list so Markdown preview renders correctly\n");
             prompt.append("9. Keep each field under 500 characters if possible\n");
             prompt.append("10. Write the report in English\n\n");
         } else {
             prompt.append("1. 只返回JSON对象，不要有额外的文本或markdown格式\n");
             prompt.append("2. 简洁精炼、端庄严谨 - 使用正式商务语言\n");
-            prompt.append("3. 按分类组织工作（产品研发、外部支持、组织建设等）\n");
-            prompt.append("4. 格式：一、分类名称\\n1）具体工作1\\n2）具体工作2\n");
+            prompt.append("3. 使用固定分类标题：### 1. 产品研发 和 ### 2. 外部支持\n");
+            prompt.append("4. 只使用标准Markdown数字列表：1. 事项、2. 事项，不要使用 1）、1)、1、 或纯项目符号\n");
             prompt.append("5. 每个分类最多5项\n");
             prompt.append("6. 省略琐碎改动（格式调整、注释修改、小型重构）\n");
             prompt.append("7. 将相关的提交合并为一个要点\n");
-            prompt.append("8. 使用中文数字编号：一、二、三 表示分类，1）2）3）表示具体项目\n");
+            prompt.append("8. 每个标题后、每组数字列表前都必须保留一个空行，确保Markdown预览正确换行\n");
             prompt.append("9. 每个字段尽量控制在500字符以内\n");
             prompt.append("10. 使用中文撰写报告\n\n");
         }
@@ -137,12 +137,14 @@ public class PromptTemplate {
             prompt.append("- ❌ '调查了数据库连接的问题...'\n");
             prompt.append("- ✅ '修复数据库连接超时问题'\n");
             prompt.append("\n示例格式：\n");
-            prompt.append("一、产品研发\n");
-            prompt.append("1）跟踪各产品补丁集\n");
-            prompt.append("2）AI Coding功能验证\n");
+            prompt.append("### 1. 产品研发\n\n");
+            prompt.append("1. 跟踪各产品补丁集\n");
+            prompt.append("2. AI Coding功能验证\n");
+            prompt.append("\n### 2. 外部支持\n\n");
+            prompt.append("1. 暂无外部支持事项。\n");
             prompt.append("\n下周计划\n");
-            prompt.append("1、数据链共建立项事宜\n");
-            prompt.append("2、日照银行交流\n");
+            prompt.append("1. 数据链共建立项事宜\n");
+            prompt.append("2. 日照银行交流\n");
         }
 
         return prompt.toString();

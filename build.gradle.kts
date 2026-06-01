@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "org.flymars.devtools"
-version = "1.1.0"
+version = "1.2.0"
 
 repositories {
     mavenCentral()
@@ -54,7 +54,7 @@ dependencies {
     testAnnotationProcessor("org.projectlombok:lombok:1.18.36")
 
     // Jakarta Mail for email functionality (using latest secure version)
-    implementation("org.eclipse.angus:angus-mail:2.0.3")
+    implementation("org.eclipse.angus:angus-mail:2.0.4")
     // Bundle HTTP/JSON libraries with the plugin instead of relying on IDE classpath leakage.
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.google.code.gson:gson:2.11.0")
@@ -67,7 +67,25 @@ intellijPlatform {
         }
 
         changeNotes = """
-            <h3>Initial Release v1.0.0</h3>
+            <h3>Version 1.2.0</h3>
+            <ul>
+                <li>Custom date picker with dark theme support</li>
+                <li>Responsive toolbar layout that adapts to narrow windows</li>
+                <li>Markdown preview for report editing</li>
+                <li>Remove external JXDatePicker dependency, use native Swing components</li>
+                <li>UI refinements: compact calendar popup, theme-aware icons</li>
+                <li>Report template and prompt improvements</li>
+            </ul>
+            <h3>Version 1.1.0</h3>
+            <ul>
+                <li>AI-powered commit message generation in Git Commit dialog</li>
+                <li>Support local agent (Claude Code, Codex CLI, OpenCode) for commit message generation</li>
+                <li>Configurable prompt for local agent execution</li>
+                <li>Bundle OkHttp and Gson dependencies with the plugin</li>
+                <li>Fix timezone handling in GitLab API date queries</li>
+                <li>Smart report week calculation</li>
+            </ul>
+            <h3>Version 1.0.0</h3>
             <ul>
                 <li>GitLab REST API integration for fetching commits</li>
                 <li>Support for multiple GitLab instances (self-hosted and GitLab.com)</li>

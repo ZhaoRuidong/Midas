@@ -3,23 +3,23 @@ package org.flymars.devtools.midas.ui.toolwindow;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.ui.JBColor;
-import com.intellij.ui.components.JBScrollPane;
-import com.intellij.util.ui.JBUI;
-import com.intellij.util.ui.UIUtil;
-import com.intellij.util.ui.components.BorderLayoutPanel;
 import com.intellij.ui.JBSplitter;
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.TreeSpeedSearch;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBList;
+import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.ui.JBUI;
+import com.intellij.util.ui.UIUtil;
 import com.intellij.util.ui.components.BorderLayoutPanel;
 import org.flymars.devtools.midas.CommitReporterKeys;
 import org.flymars.devtools.midas.config.ConfigManager;
 import org.flymars.devtools.midas.core.CommitStorage;
 import org.flymars.devtools.midas.data.CommitInfo;
+import org.flymars.devtools.midas.ui.component.DatePickerComponent;
 import org.flymars.devtools.midas.data.DailyNote;
 import org.flymars.devtools.midas.data.WeeklyReport;
 import org.flymars.devtools.midas.gitlab.GitLabProjectService;
@@ -60,15 +60,16 @@ public class ReportPanel {
     private JButton refreshButton;
     private JButton generateReportButton;
     private JLabel statusLabel;
+    private DatePickerComponent startDatePicker;
+    private DatePickerComponent endDatePicker;
+    private JButton resetDateButton;
 
     // Daily Notes UI components
     private JBList<String> weekDaysList;
     private DefaultListModel<String> weekDaysModel;
     private JTextArea noteEditor;
-    private JScrollPane noteEditorScrollPane;
     private JButton saveNoteButton;
     private JBLabel noteStatusLabel;
-    private JComponent toolbarComponent;
     private LocalDate currentWeekStart;
     private List<DailyNote> currentWeekNotes = new ArrayList<>();
 
@@ -110,19 +111,114 @@ public class ReportPanel {
 
         mainPanel.add(tabbedPane, BorderLayout.CENTER);
 
-        // Button panel at bottom
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 5));
+        // Date range selection panel (includes action buttons)
+        JPanel dateRangePanel = createDateRangePanel();
+        mainPanel.add(dateRangePanel, BorderLayout.NORTH);
+    }
 
-        refreshButton = new JButton("🔄 Refresh");
+    /**
+     * Create the date range selection panel
+     */
+    private JPanel createDateRangePanel() {
+        JPanel panel = new JPanel(new WrapLayout(FlowLayout.LEFT, 8, 4));
+        panel.setBorder(BorderFactory.createEmptyBorder(0, 4, 4, 4));
+
+        LocalDate defaultStart = WeeklyReportGenerator.getDefaultReportWeekStart(LocalDate.now());
+        LocalDate defaultEnd = WeeklyReportGenerator.getDefaultReportWeekEnd(LocalDate.now());
+
+        // Start date
+        panel.add(new JBLabel("From:"));
+        startDatePicker = new DatePickerComponent();
+        startDatePicker.setDate(defaultStart);
+        panel.add(startDatePicker);
+
+        // End date
+        panel.add(new JBLabel("To:"));
+        endDatePicker = new DatePickerComponent();
+        endDatePicker.setDate(defaultEnd);
+        panel.add(endDatePicker);
+
+        // Reset button
+        resetDateButton = new JButton("Reset");
+        resetDateButton.setToolTipText("Reset to default report week");
+        resetDateButton.addActionListener(e -> resetDateRange());
+        panel.add(resetDateButton);
+
+        // Action buttons
+        refreshButton = new JButton("Refresh");
         refreshButton.addActionListener(e -> refreshData());
+        panel.add(refreshButton);
 
-        generateReportButton = new JButton("📝 Generate Weekly Report");
+        generateReportButton = new JButton("Generate Report");
         generateReportButton.addActionListener(e -> generateReportPreview());
+        panel.add(generateReportButton);
 
-        buttonPanel.add(refreshButton);
-        buttonPanel.add(generateReportButton);
+        return panel;
+    }
 
-        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+    /**
+     * A FlowLayout that wraps components to the next line when width is insufficient.
+     */
+    private static class WrapLayout extends FlowLayout {
+        WrapLayout(int align, int hgap, int vgap) {
+            super(align, hgap, vgap);
+        }
+
+        @Override
+        public Dimension preferredLayoutSize(Container target) {
+            return layoutSize(target, true);
+        }
+
+        @Override
+        public Dimension minimumLayoutSize(Container target) {
+            return layoutSize(target, false);
+        }
+
+        private Dimension layoutSize(Container target, boolean preferred) {
+            Insets insets = target.getInsets();
+            int width = target.getWidth();
+            if (width == 0) {
+                width = Integer.MAX_VALUE;
+            }
+
+            int x = insets.left;
+            int y = insets.top;
+            int rowHeight = 0;
+
+            for (Component comp : target.getComponents()) {
+                if (!comp.isVisible()) continue;
+                Dimension d = preferred ? comp.getPreferredSize() : comp.getMinimumSize();
+                if (x + d.width > width - insets.right && x > insets.left) {
+                    x = insets.left;
+                    y += rowHeight + getVgap();
+                    rowHeight = 0;
+                }
+                x += d.width + getHgap();
+                rowHeight = Math.max(rowHeight, d.height);
+            }
+
+            return new Dimension(width, y + rowHeight + insets.bottom);
+        }
+    }
+
+    /**
+     * Reset date range to default values
+     */
+    private void resetDateRange() {
+        LocalDate defaultStart = WeeklyReportGenerator.getDefaultReportWeekStart(LocalDate.now());
+        LocalDate defaultEnd = WeeklyReportGenerator.getDefaultReportWeekEnd(LocalDate.now());
+        startDatePicker.setDate(defaultStart);
+        endDatePicker.setDate(defaultEnd);
+    }
+
+    private LocalDate getSelectedStartDate() {
+        LocalDate date = startDatePicker.getDate();
+        return date != null ? date : LocalDate.now();
+    }
+
+    private LocalDate getSelectedEndDate() {
+        LocalDate date = endDatePicker.getDate();
+        return date != null ? date : LocalDate.now();
     }
 
     /**
@@ -197,14 +293,16 @@ public class ReportPanel {
         JPanel listPanel = listDecorator.createPanel();
 
         // Create note editor
-        noteEditor = createNoteEditor();
-        java.awt.Color bgColor = UIUtil.getPanelBackground();
-        noteEditor.setBackground(bgColor);
+        noteEditor = new JTextArea();
+        noteEditor.setLineWrap(true);
+        noteEditor.setWrapStyleWord(true);
+        noteEditor.setTabSize(4);
+        noteEditor.setFont(new Font("Monospaced", Font.PLAIN, 13));
+        noteEditor.setOpaque(true);
+        noteEditor.setBackground(UIUtil.getPanelBackground());
 
-        noteEditorScrollPane = new JBScrollPane(noteEditor);
+        JScrollPane noteEditorScrollPane = new JBScrollPane(noteEditor);
         noteEditorScrollPane.setBorder(JBUI.Borders.empty(4));
-        noteEditorScrollPane.setOpaque(false);
-        noteEditorScrollPane.getViewport().setOpaque(false);
 
         // Create toolbar (transparent)
         JComponent toolbar = createEditorToolbar();
@@ -216,9 +314,6 @@ public class ReportPanel {
         rightPanel.add(toolbar, BorderLayout.NORTH);
         rightPanel.add(noteEditorScrollPane, BorderLayout.CENTER);
 
-        // Store reference to toolbar for color updates
-        this.toolbarComponent = toolbar;
-
         // Create splitter
         JBSplitter splitter = new JBSplitter(false, 0.25f);
         splitter.setOpaque(false);
@@ -226,9 +321,6 @@ public class ReportPanel {
         splitter.setSecondComponent(rightPanel);
 
         panel.addToCenter(splitter);
-
-        // Apply colors after components are added to hierarchy
-        SwingUtilities.invokeLater(() -> applyEditorColors());
 
         // Add list selection listener
         weekDaysList.addListSelectionListener(new ListSelectionListener() {
@@ -244,58 +336,6 @@ public class ReportPanel {
         });
 
         return panel;
-    }
-
-    /**
-     * Create IDEA-style editor for notes using JTextArea
-     */
-    private JTextArea createNoteEditor() {
-        JTextArea textArea = new JTextArea();
-        textArea.setLineWrap(true);
-        textArea.setWrapStyleWord(true);
-        textArea.setTabSize(4);
-
-        // Set font to match IDEA's editor font
-        textArea.setFont(new Font("Monospaced", Font.PLAIN, 13));
-
-        // Set background to be transparent to let parent show through
-        // Then set opaque to true so it paints the parent's background
-        textArea.setOpaque(true);
-
-        // Don't set colors here - they will be set by applyEditorColors()
-        // after the component is added to the hierarchy
-
-        return textArea;
-    }
-
-    /**
-     * Apply editor theme colors dynamically
-     * Call this when the component is displayed or theme changes
-     */
-    private void applyEditorColors() {
-        if (noteEditor == null) return;
-
-        // Get current colors from UIUtil
-        java.awt.Color bgColor = UIUtil.getPanelBackground();
-        java.awt.Color fgColor = UIUtil.getLabelForeground();
-
-        // Apply to editor
-        noteEditor.setBackground(bgColor);
-        noteEditor.setForeground(fgColor);
-
-        // Apply to toolbar to match editor background
-        if (toolbarComponent != null) {
-            toolbarComponent.setBackground(bgColor);
-        }
-
-        // Repaint to ensure changes are visible
-        noteEditor.repaint();
-        if (toolbarComponent != null) {
-            toolbarComponent.repaint();
-        }
-        if (noteEditorScrollPane != null) {
-            noteEditorScrollPane.repaint();
-        }
     }
 
     /**
@@ -346,7 +386,7 @@ public class ReportPanel {
 
         String content = (note != null && note.getContent() != null) ? note.getContent() : "";
 
-        // Set text in JTextArea
+        // Set text in editor
         noteEditor.setText(content);
 
         if (note != null && note.getContent() != null && !note.getContent().isEmpty()) {
@@ -369,7 +409,7 @@ public class ReportPanel {
         String content = noteEditor.getText().trim();
 
         DailyNote note = new DailyNote(selectedDate, content);
-        storage.saveNote(note);
+        ApplicationManager.getApplication().runWriteAction(() -> storage.saveNote(note));
 
         noteStatusLabel.setText(selectedDate + " - Saved!");
         LOG.info("Saved note for " + selectedDate);
@@ -422,6 +462,9 @@ public class ReportPanel {
         gitlabProjectService.clearCommitCache();
         statusLabel.setText("Loading commits...");
 
+        LocalDate weekStart = getSelectedStartDate();
+        LocalDate weekEnd = getSelectedEndDate();
+
         SwingWorker<List<CommitInfo>, Void> worker = new SwingWorker<>() {
             private boolean noProjectsSelected = false;
 
@@ -436,9 +479,6 @@ public class ReportPanel {
                         noProjectsSelected = true;
                         return List.of();
                     }
-
-                    LocalDate weekStart = WeeklyReportGenerator.getDefaultReportWeekStart(LocalDate.now());
-                    LocalDate weekEnd = WeeklyReportGenerator.getDefaultReportWeekEnd(LocalDate.now());
 
                     return gitlabProjectService
                             .getMyCommitsForWeek(weekStart, weekEnd, selectedProjects)
@@ -460,13 +500,9 @@ public class ReportPanel {
                         statusLabel.setText("⚠️ No projects selected. Go to Settings → Midas → GitLab to select projects.");
                         statusLabel.setForeground(Color.ORANGE);
                     } else if (commits.isEmpty()) {
-                        LocalDate weekStart = WeeklyReportGenerator.getDefaultReportWeekStart(LocalDate.now());
-                        LocalDate weekEnd = WeeklyReportGenerator.getDefaultReportWeekEnd(LocalDate.now());
                         statusLabel.setText("No commits found for report week " + weekStart + " to " + weekEnd);
                         statusLabel.setForeground(new Color(150, 150, 0));
                     } else {
-                        LocalDate weekStart = WeeklyReportGenerator.getDefaultReportWeekStart(LocalDate.now());
-                        LocalDate weekEnd = WeeklyReportGenerator.getDefaultReportWeekEnd(LocalDate.now());
                         statusLabel.setText("Showing " + commits.size() + " of your commits for report week " + weekStart + " to " + weekEnd);
                         statusLabel.setForeground(new Color(0, 150, 0));
                     }
@@ -543,6 +579,17 @@ public class ReportPanel {
             return;
         }
 
+        LocalDate weekStart = getSelectedStartDate();
+        LocalDate weekEnd = getSelectedEndDate();
+
+        if (weekStart.isAfter(weekEnd)) {
+            Messages.showWarningDialog(
+                    "Start date cannot be after end date.",
+                    "Invalid Date Range"
+            );
+            return;
+        }
+
         generateReportButton.setEnabled(false);
         generateReportButton.setText("Generating...");
 
@@ -552,7 +599,7 @@ public class ReportPanel {
                 System.out.println("[Midas] ========== BACKGROUND WORK STARTED ==========");
                 System.out.println("[Midas] Starting report generation in background thread...");
                 try {
-                    WeeklyReport report = reportGenerator.generateCurrentWeekReport();
+                    WeeklyReport report = reportGenerator.generateReport(weekStart, weekEnd);
                     System.out.println("[Midas] Report generation completed in background thread");
                     System.out.println("[Midas] Report has " + report.getCommits().size() + " commits");
                     return report;
@@ -582,8 +629,6 @@ public class ReportPanel {
                     System.out.println("[Midas] Preview dialog object created");
 
                     System.out.println("[Midas] Scheduling dialog display with invokeLater...");
-                    // Use invokeLater to ensure the dialog is shown after done() completes
-                    // This is necessary for modal dialogs in SwingWorker
                     SwingUtilities.invokeLater(() -> {
                         System.out.println("[Midas] invokeLater callback executing, showing dialog...");
                         dialog.setVisible(true);

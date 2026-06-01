@@ -13,7 +13,6 @@ import org.flymars.devtools.midas.gitlab.GitLabProjectService;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -23,7 +22,6 @@ import java.util.concurrent.CompletableFuture;
  */
 public class WeeklyReportGenerator {
     private static final Logger LOG = Logger.getInstance(WeeklyReportGenerator.class);
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     private final Project project;
     private final CommitStorage storage;
@@ -319,40 +317,47 @@ public class WeeklyReportGenerator {
                 .weekEnd(weekEnd)
                 .commits(List.of())
                 .statistics(stats)
-                .summary("No commits were recorded during this week.")
+                .summary(buildEmptySummary())
                 .technicalHighlights("")
                 .problemsAndSolutions("")
                 .nextWeekPlans("")
                 .projectName(project.getName())
                 .generatedAt(LocalDateTime.now())
-                .markdownContent(generateEmptyMarkdown(weekStart, weekEnd))
-                .htmlContent(generateEmptyHTML(weekStart, weekEnd))
+                .markdownContent(generateEmptyMarkdown())
+                .htmlContent(generateEmptyHTML())
                 .build();
     }
 
-    private String generateEmptyMarkdown(LocalDate weekStart, LocalDate weekEnd) {
-        return String.format(
-                "# 开发周报 - %s 至 %s\n\n" +
-                        "## 📊 本周概览\n\n" +
-                        "本周没有提交记录。\n\n" +
-                        "## 💡 主要工作内容\n\n" +
-                        "暂无数据\n\n",
-                weekStart.format(DATE_FORMATTER),
-                weekEnd.format(DATE_FORMATTER)
-        );
+    /**
+     * 构建空报告的主要工作内容，保持和 AI 正常输出一致的 Markdown 结构。
+     */
+    private String buildEmptySummary() {
+        return "### 1. 产品研发\n\n" +
+                "1. 本周没有提交记录。\n\n" +
+                "### 2. 外部支持\n\n" +
+                "1. 暂无外部支持事项。";
     }
 
-    private String generateEmptyHTML(LocalDate weekStart, LocalDate weekEnd) {
-        return String.format(
-                "<html><head><style>%s</style></head><body>" +
-                        "<h1>开发周报 - %s 至 %s</h1>" +
-                        "<h2>本周概览</h2>" +
-                        "<p>本周没有提交记录。</p>" +
-                        "</body></html>",
-                ReportTemplate.getBaseCSS(),
-                weekStart.format(DATE_FORMATTER),
-                weekEnd.format(DATE_FORMATTER)
-        );
+    /**
+     * 构建空报告 Markdown，去掉日期标题并使用标准数字列表。
+     */
+    private String generateEmptyMarkdown() {
+        return "## 主要工作内容\n\n" +
+                buildEmptySummary() +
+                "\n";
+    }
+
+    /**
+     * 构建空报告 HTML，去掉日期主标题并保留主要工作内容层级。
+     */
+    private String generateEmptyHTML() {
+        return "<html><head><style>" + ReportTemplate.getBaseCSS() + "</style></head><body>" +
+                "<h2>主要工作内容</h2>" +
+                "<h3>1. 产品研发</h3>" +
+                "<ol><li>本周没有提交记录。</li></ol>" +
+                "<h3>2. 外部支持</h3>" +
+                "<ol><li>暂无外部支持事项。</li></ol>" +
+                "</body></html>";
     }
 
     /**

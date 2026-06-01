@@ -1,13 +1,17 @@
 package org.flymars.devtools.midas.ui.toolwindow;
 
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
 import org.flymars.devtools.midas.config.ConfigManager;
 import org.flymars.devtools.midas.data.CommitInfo;
 import org.flymars.devtools.midas.data.WeeklyReport;
 import org.flymars.devtools.midas.email.EmailService;
 import org.flymars.devtools.midas.gitlab.GitLabProjectService;
 import org.flymars.devtools.midas.report.ReportTemplate;
+import org.flymars.devtools.midas.ui.component.MarkdownPreviewPanel;
+import org.flymars.devtools.midas.ui.component.MarkdownSplitEditor;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -26,7 +30,8 @@ public class ReportPreviewDialog extends JDialog {
     private final GitLabProjectService gitlabProjectService;
     private final EmailService emailService;
 
-    private JTextArea reportTextArea;
+    private MarkdownSplitEditor markdownEditor;
+    private Disposable editorDisposable;
     private JButton sendButton;
     private JButton saveButton;
     private JButton closeButton;
@@ -48,6 +53,17 @@ public class ReportPreviewDialog extends JDialog {
         setSize(800, 600);
         setLocationRelativeTo(getParentFrame(project));
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+
+        this.editorDisposable = Disposer.newDisposable("ReportPreviewDialog");
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosed(java.awt.event.WindowEvent e) {
+                if (markdownEditor != null) {
+                    markdownEditor.dispose();
+                }
+                Disposer.dispose(editorDisposable);
+            }
+        });
 
         System.out.println("[Midas] Initializing UI components...");
         initComponents();
@@ -83,17 +99,12 @@ public class ReportPreviewDialog extends JDialog {
 
         mainPanel.add(headerPanel, BorderLayout.NORTH);
 
-        // Report content (editable)
+        // Report content - Markdown split editor
+        markdownEditor = new MarkdownSplitEditor(editorDisposable);
         JPanel contentPanel = new JPanel(new BorderLayout(10, 10));
         contentPanel.setBorder(BorderFactory.createTitledBorder("Report Content"));
+        contentPanel.add(markdownEditor.getComponent(), BorderLayout.CENTER);
 
-        reportTextArea = new JTextArea();
-        reportTextArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
-        JScrollPane scrollPane = new JScrollPane(reportTextArea);
-
-        contentPanel.add(scrollPane, BorderLayout.CENTER);
-
-        // Edit instructions
         JLabel editLabel = new JLabel("<html><i style='color: #666;'>You can edit the report content above before sending.</i></html>");
         contentPanel.add(editLabel, BorderLayout.SOUTH);
 
@@ -152,8 +163,7 @@ public class ReportPreviewDialog extends JDialog {
         }
 
         System.out.println("[Midas] Setting report text to text area, length: " + content.length());
-        reportTextArea.setText(content);
-        reportTextArea.setCaretPosition(0);
+        markdownEditor.setText(content);
         System.out.println("[Midas] Report content loaded successfully");
 
         // Update info label
@@ -272,7 +282,7 @@ public class ReportPreviewDialog extends JDialog {
         if (result == JFileChooser.APPROVE_OPTION) {
             try {
                 java.io.File file = chooser.getSelectedFile();
-                java.nio.file.Files.writeString(file.toPath(), reportTextArea.getText(), java.nio.file.StandardOpenOption.CREATE);
+                java.nio.file.Files.writeString(file.toPath(), markdownEditor.getText(), java.nio.file.StandardOpenOption.CREATE);
 
                 SwingUtilities.invokeLater(() -> {
                     JOptionPane.showMessageDialog(this,
@@ -322,7 +332,7 @@ public class ReportPreviewDialog extends JDialog {
             protected Boolean doInBackground() {
                 try {
                     // Update report content with user's edits
-                    String editedMarkdown = reportTextArea.getText();
+                    String editedMarkdown = markdownEditor.getText();
                     report.setMarkdownContent(editedMarkdown);
                     // Update HTML content from edited markdown
                     report.setHtmlContent(convertMarkdownToHtml(editedMarkdown));
@@ -401,39 +411,12 @@ public class ReportPreviewDialog extends JDialog {
         html.append("</head>\n");
         html.append("<body>\n");
         html.append("    <div class=\"container\">\n");
-        html.append(markdownToHTML(markdown));
+        html.append(MarkdownPreviewPanel.renderMarkdownToHtml(markdown));
         html.append("    </div>\n");
         html.append("</body>\n");
         html.append("</html>\n");
 
         return html.toString();
-    }
-
-    /**
-     * Simple markdown to HTML converter
-     */
-    private String markdownToHTML(String markdown) {
-        if (markdown == null) {
-            return "";
-        }
-
-        String html = markdown
-                .replaceAll("# (.*)", "<h1>$1</h1>")
-                .replaceAll("### (.*)", "<h3>$1</h3>")
-                .replaceAll("## (.*)", "<h2>$1</h2>")
-                .replaceAll("- (.*)", "<li>$1</li>")
-                .replaceAll("\\*\\*(.*?)\\*\\*", "<strong>$1</strong>")
-                .replaceAll("\\*(.*?)\\*", "<em>$1</em>");
-
-        // Wrap lists
-        if (html.contains("<li>")) {
-            html = "<ul>" + html + "</ul>";
-        }
-
-        // Convert line breaks
-        html = html.replaceAll("\n", "<br>\n");
-
-        return html;
     }
 
     /**
