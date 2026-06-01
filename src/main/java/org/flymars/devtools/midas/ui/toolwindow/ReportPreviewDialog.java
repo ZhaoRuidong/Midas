@@ -10,7 +10,6 @@ import org.flymars.devtools.midas.data.WeeklyReport;
 import org.flymars.devtools.midas.email.EmailService;
 import org.flymars.devtools.midas.gitlab.GitLabProjectService;
 import org.flymars.devtools.midas.report.ReportTemplate;
-import org.flymars.devtools.midas.ui.component.MarkdownPreviewPanel;
 import org.flymars.devtools.midas.ui.component.MarkdownSplitEditor;
 
 import javax.swing.*;
@@ -391,32 +390,13 @@ public class ReportPreviewDialog extends JDialog {
     }
 
     /**
-     * Convert markdown to HTML for email content
+     * 将编辑后的 Markdown 转成邮件 HTML，复用统一周报模板保证预览发送样式一致。
      */
     private String convertMarkdownToHtml(String markdown) {
         if (markdown == null || markdown.isEmpty()) {
             return "";
         }
-
-        StringBuilder html = new StringBuilder();
-        html.append("<!DOCTYPE html>\n");
-        html.append("<html lang=\"zh-CN\">\n");
-        html.append("<head>\n");
-        html.append("    <meta charset=\"UTF-8\">\n");
-        html.append("    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n");
-        html.append("    <title>开发周报</title>\n");
-        html.append("    <style>\n");
-        html.append(ReportTemplate.getBaseCSS());
-        html.append("    </style>\n");
-        html.append("</head>\n");
-        html.append("<body>\n");
-        html.append("    <div class=\"container\">\n");
-        html.append(MarkdownPreviewPanel.renderMarkdownToHtml(markdown));
-        html.append("    </div>\n");
-        html.append("</body>\n");
-        html.append("</html>\n");
-
-        return html.toString();
+        return ReportTemplate.generateHTMLFromMarkdown(markdown, report, configManager);
     }
 
     /**

@@ -302,7 +302,7 @@ public class WeeklyReportGenerator {
     }
 
     /**
-     * Create an empty report when no commits found
+     * 没有提交记录时创建空周报，并复用统一 HTML 邮件模板。
      */
     private WeeklyReport createEmptyReport(LocalDate weekStart, LocalDate weekEnd) {
         Statistics stats = Statistics.builder()
@@ -312,7 +312,7 @@ public class WeeklyReportGenerator {
                 .totalFilesChanged(0)
                 .build();
 
-        return WeeklyReport.builder()
+        WeeklyReport report = WeeklyReport.builder()
                 .weekStart(weekStart)
                 .weekEnd(weekEnd)
                 .commits(List.of())
@@ -324,8 +324,9 @@ public class WeeklyReportGenerator {
                 .projectName(project.getName())
                 .generatedAt(LocalDateTime.now())
                 .markdownContent(generateEmptyMarkdown())
-                .htmlContent(generateEmptyHTML())
                 .build();
+        report.setHtmlContent(ReportTemplate.generateHTML(report, configManager));
+        return report;
     }
 
     /**
@@ -345,19 +346,6 @@ public class WeeklyReportGenerator {
         return "## 主要工作内容\n\n" +
                 buildEmptySummary() +
                 "\n";
-    }
-
-    /**
-     * 构建空报告 HTML，去掉日期主标题并保留主要工作内容层级。
-     */
-    private String generateEmptyHTML() {
-        return "<html><head><style>" + ReportTemplate.getBaseCSS() + "</style></head><body>" +
-                "<h2>主要工作内容</h2>" +
-                "<h3>1. 产品研发</h3>" +
-                "<ol><li>本周没有提交记录。</li></ol>" +
-                "<h3>2. 外部支持</h3>" +
-                "<ol><li>暂无外部支持事项。</li></ol>" +
-                "</body></html>";
     }
 
     /**

@@ -5,10 +5,18 @@ import org.flymars.devtools.midas.config.PluginConfig;
 import org.flymars.devtools.midas.data.WeeklyReport;
 import org.flymars.devtools.midas.ui.component.MarkdownPreviewPanel;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * Template for generating reports in various formats
  */
 public class ReportTemplate {
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy年MM月dd日");
+    private static final Pattern FOOTER_SEPARATOR_PATTERN = Pattern.compile("(?m)^\\s*---\\s*$");
+
     /**
      * Generate markdown report
      */
@@ -63,88 +71,104 @@ public class ReportTemplate {
     }
 
     /**
-     * Generate HTML report
+     * 生成邮件发送使用的 HTML 周报。
      */
     public static String generateHTML(WeeklyReport report, ConfigManager config) {
         PluginConfig.ReportLanguage language = config.getReportLanguage();
         boolean isEnglish = language == PluginConfig.ReportLanguage.ENGLISH;
 
-        StringBuilder html = new StringBuilder();
+        StringBuilder body = new StringBuilder();
 
-        html.append("<!DOCTYPE html>\n");
-
-        if (isEnglish) {
-            html.append("<html lang=\"en\">\n");
-            html.append("<head>\n");
-            html.append("    <meta charset=\"UTF-8\">\n");
-            html.append("    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n");
-            html.append("    <title>Weekly Development Report</title>\n");
-        } else {
-            html.append("<html lang=\"zh-CN\">\n");
-            html.append("<head>\n");
-            html.append("    <meta charset=\"UTF-8\">\n");
-            html.append("    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n");
-            html.append("    <title>开发周报</title>\n");
+        // 正文由 AI Markdown 渲染而来，外层邮件样式负责提供稳定的版式和间距。
+        if (hasMarkdownContent(report.getSummary())) {
+            body.append(buildContentSection(
+                    isEnglish ? "Main Work Content" : "主要工作内容",
+                    markdownToHTML(normalizeMarkdownBlock(report.getSummary()))
+            ));
         }
 
+        if (hasMarkdownContent(report.getNextWeekPlans())) {
+            if (!body.isEmpty()) {
+                body.append(buildDivider());
+            }
+            body.append(buildContentSection(
+                    isEnglish ? "Next Week Plans" : "下周计划",
+                    markdownToHTML(normalizeMarkdownBlock(report.getNextWeekPlans()))
+            ));
+        }
+
+        return buildEmailShell(
+                isEnglish,
+                isEnglish ? "Weekly Development Report" : "开发周报",
+                formatDateRange(report, isEnglish),
+                body.toString(),
+                buildPluginFooter(isEnglish)
+        );
+    }
+
+    /**
+     * 将预览弹窗中编辑后的 Markdown 转为新版邮件 HTML。
+     */
+    public static String generateHTMLFromMarkdown(String markdown, WeeklyReport report, ConfigManager config) {
+        PluginConfig.ReportLanguage language = config.getReportLanguage();
+        boolean isEnglish = language == PluginConfig.ReportLanguage.ENGLISH;
+        String contentMarkdown = stripGeneratedFooter(markdown);
+        String contentHtml = """
+                <tr>
+                    <td style="padding: 34px 38px 12px;">
+                        <div class="midas-content" style="color: #334155; font-size: 15px; line-height: 1.85;">
+                %s
+                        </div>
+                    </td>
+                </tr>
+                """.formatted(markdownToHTML(contentMarkdown));
+
+        return buildEmailShell(
+                isEnglish,
+                isEnglish ? "Weekly Development Report" : "开发周报",
+                formatDateRange(report, isEnglish),
+                contentHtml,
+                buildPluginFooter(isEnglish)
+        );
+    }
+
+    /**
+     * 组装完整邮件外壳，使用 table 和内联样式提升邮件客户端兼容性。
+     */
+    private static String buildEmailShell(boolean isEnglish, String title, String subtitle, String bodyRows, String footerRows) {
+        String language = isEnglish ? "en" : "zh-CN";
+        String brandLabel = isEnglish ? "Midas Weekly Report" : "Midas Weekly Report";
+
+        StringBuilder html = new StringBuilder();
+        html.append("<!DOCTYPE html>\n");
+        html.append("<html lang=\"").append(language).append("\">\n");
+        html.append("<head>\n");
+        html.append("    <meta charset=\"UTF-8\">\n");
+        html.append("    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n");
+        html.append("    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n");
+        html.append("    <title>").append(escapeHtml(title)).append("</title>\n");
         html.append("    <style>\n");
         html.append(getBaseCSS());
         html.append("    </style>\n");
         html.append("</head>\n");
-        html.append("<body>\n");
-
-        html.append("    <div class=\"container\">\n");
-
-        // HTML 正文同样去掉周报日期主标题，从主要工作内容开始展示。
-        if (hasMarkdownContent(report.getSummary())) {
-            if (isEnglish) {
-                html.append("        <h2>Main Work Content</h2>\n");
-            } else {
-                html.append("        <h2>主要工作内容</h2>\n");
-            }
-            html.append("        <div class=\"content\">").append(markdownToHTML(normalizeMarkdownBlock(report.getSummary()))).append("</div>\n");
-        }
-
-        // 下周计划保留独立区块，列表结构交给 Markdown 渲染器处理。
-        if (hasMarkdownContent(report.getNextWeekPlans())) {
-            if (isEnglish) {
-                html.append("        <h2>Next Week Plans</h2>\n");
-            } else {
-                html.append("        <h2>下周计划</h2>\n");
-            }
-            html.append("        <div class=\"content\">").append(markdownToHTML(normalizeMarkdownBlock(report.getNextWeekPlans()))).append("</div>\n");
-        }
-
-        // Footer
-        html.append("        <hr>\n");
-        html.append("        <footer>\n");
-
-        html.append("            <div class=\"plugin-promo\">\n");
-
-        if (isEnglish) {
-            html.append("                <p>📢 <strong>This report is automatically generated by <a href=\"https://github.com/ZhaoRuidong/Midas\" target=\"_blank\">Midas</a> IntelliJ plugin</strong></p>\n");
-            html.append("                <p>Midas is an IntelliJ IDEA plugin that helps you:</p>\n");
-            html.append("                <ul>\n");
-            html.append("                    <li>📊 Automatically track Git commit records</li>\n");
-            html.append("                    <li>🤖 Generate professional weekly reports with AI</li>\n");
-            html.append("                    <li>📧 Support email sending and scheduled reminders</li>\n");
-            html.append("                </ul>\n");
-            html.append("                <p>✨ Making weekly report generation simpler and improving work efficiency!</p>\n");
-        } else {
-            html.append("                <p>📢 <strong>本报告由 <a href=\"https://github.com/ZhaoRuidong/Midas\" target=\"_blank\">Midas</a> IntelliJ 插件自动生成</strong></p>\n");
-            html.append("                <p>Midas 是一款 IntelliJ IDEA 插件，能够：</p>\n");
-            html.append("                <ul>\n");
-            html.append("                    <li>📊 自动追踪 Git 提交记录</li>\n");
-            html.append("                    <li>🤖 基于 AI 生成专业的周报内容</li>\n");
-            html.append("                    <li>📧 支持邮件发送与定时提醒</li>\n");
-            html.append("                </ul>\n");
-            html.append("                <p>✨ 让周报生成更简单，提高工作效率！</p>\n");
-        }
-
-        html.append("            </div>\n");
-        html.append("        </footer>\n");
-
-        html.append("    </div>\n");
+        html.append("<body style=\"margin: 0; padding: 0; background: #eef2f7; color: #1f2937; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', Arial, sans-serif;\">\n");
+        html.append("    <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"border-collapse: collapse; background: #eef2f7;\">\n");
+        html.append("        <tr>\n");
+        html.append("            <td align=\"center\" style=\"padding: 28px 12px;\">\n");
+        html.append("                <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"width: 100%; max-width: 760px; border-collapse: collapse; background: #ffffff; border-radius: 14px; overflow: hidden; box-shadow: 0 14px 36px rgba(15, 23, 42, 0.10);\">\n");
+        html.append("                    <tr>\n");
+        html.append("                        <td style=\"padding: 34px 38px 30px; background: #0f172a;\">\n");
+        html.append("                            <div style=\"font-size: 13px; line-height: 1.4; color: #93c5fd; font-weight: 700; letter-spacing: 0; margin-bottom: 12px;\">").append(brandLabel).append("</div>\n");
+        html.append("                            <h1 style=\"margin: 0; color: #ffffff; font-size: 30px; line-height: 1.25; font-weight: 800; letter-spacing: 0;\">").append(escapeHtml(title)).append("</h1>\n");
+        html.append("                            <p style=\"margin: 12px 0 0; color: #cbd5e1; font-size: 15px; line-height: 1.7;\">").append(escapeHtml(subtitle)).append("</p>\n");
+        html.append("                        </td>\n");
+        html.append("                    </tr>\n");
+        html.append(bodyRows);
+        html.append(footerRows);
+        html.append("                </table>\n");
+        html.append("            </td>\n");
+        html.append("        </tr>\n");
+        html.append("    </table>\n");
         html.append("</body>\n");
         html.append("</html>\n");
 
@@ -152,98 +176,199 @@ public class ReportTemplate {
     }
 
     /**
-     * Get base CSS for HTML reports
+     * 构建正文分区，标题固定内联样式，内容交给 Markdown 渲染结果展示。
+     */
+    private static String buildContentSection(String title, String contentHtml) {
+        return """
+                <tr>
+                    <td style="padding: 34px 38px 10px;">
+                        <h2 style="margin: 0 0 18px; color: #0f172a; font-size: 21px; line-height: 1.35; font-weight: 800; letter-spacing: 0;">%s</h2>
+                        <div class="midas-content" style="color: #334155; font-size: 15px; line-height: 1.85;">
+                %s
+                        </div>
+                    </td>
+                </tr>
+                """.formatted(escapeHtml(title), contentHtml);
+    }
+
+    /**
+     * 构建邮件中两个内容区之间的细分隔线。
+     */
+    private static String buildDivider() {
+        return """
+                <tr>
+                    <td style="padding: 24px 38px 8px;">
+                        <div style="height: 1px; line-height: 1px; background: #e2e8f0;">&nbsp;</div>
+                    </td>
+                </tr>
+                """;
+    }
+
+    /**
+     * 构建 Midas 插件签名区，避免 Markdown 页脚在邮件里变成松散列表。
+     */
+    private static String buildPluginFooter(boolean isEnglish) {
+        if (isEnglish) {
+            return """
+                    <tr>
+                        <td style="padding: 24px 38px 34px;">
+                            <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px;">
+                                <tr>
+                                    <td style="padding: 22px 24px;">
+                                        <p style="margin: 0 0 12px; color: #0f172a; font-size: 16px; line-height: 1.6; font-weight: 800;">📢 This report is automatically generated by <a href="https://github.com/ZhaoRuidong/Midas" style="color: #2563eb; text-decoration: none; font-weight: 800;">Midas IntelliJ plugin</a></p>
+                                        <p style="margin: 0 0 10px; color: #475569; font-size: 14px; line-height: 1.75;">Midas tracks Git commits, generates weekly reports with AI, and supports email delivery with scheduled reminders.</p>
+                                        <p style="margin: 0; color: #64748b; font-size: 13px; line-height: 1.7;">✨ Making weekly report generation simpler and improving work efficiency!</p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    """;
+        }
+
+        return """
+                <tr>
+                    <td style="padding: 24px 38px 34px;">
+                        <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px;">
+                            <tr>
+                                <td style="padding: 22px 24px;">
+                                    <p style="margin: 0 0 12px; color: #0f172a; font-size: 16px; line-height: 1.6; font-weight: 800;">📢 本报告由 <a href="https://github.com/ZhaoRuidong/Midas" style="color: #2563eb; text-decoration: none; font-weight: 800;">Midas IntelliJ 插件</a> 自动生成</p>
+                                    <p style="margin: 0 0 10px; color: #475569; font-size: 14px; line-height: 1.75;">Midas 是一款 IntelliJ IDEA 插件，能够自动追踪 Git 提交记录，基于 AI 生成专业周报，并支持邮件发送与定时提醒。</p>
+                                    <p style="margin: 0; color: #64748b; font-size: 13px; line-height: 1.7;">✨ 让周报生成更简单，提高工作效率！</p>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                """;
+    }
+
+    /**
+     * 获取 HTML 周报的基础样式，主要用于 Markdown 渲染出的正文标签。
      */
     public static String getBaseCSS() {
         return """
                 body {
-                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-                    line-height: 1.6;
-                    color: #333;
-                    max-width: 900px;
-                    margin: 0 auto;
-                    padding: 20px;
-                    background-color: #f5f5f5;
+                    margin: 0;
+                    padding: 0;
+                    background: #eef2f7;
+                    color: #1f2937;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', Arial, sans-serif;
                 }
 
                 .container {
-                    background: white;
-                    padding: 30px;
-                    border-radius: 8px;
-                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                    max-width: 760px;
+                    margin: 24px auto;
+                    padding: 34px 38px;
+                    background: #ffffff;
+                    border-radius: 14px;
+                    box-shadow: 0 14px 36px rgba(15, 23, 42, 0.10);
                 }
 
-                h1 {
-                    color: #2c3e50;
-                    border-bottom: 3px solid #3498db;
-                    padding-bottom: 10px;
+                .midas-content h1,
+                .container h1 {
+                    margin: 0 0 18px;
+                    color: #0f172a;
+                    font-size: 24px;
+                    line-height: 1.35;
+                    font-weight: 800;
+                    letter-spacing: 0;
                 }
 
-                h2 {
-                    color: #34495e;
-                    margin-top: 30px;
-                    border-left: 4px solid #3498db;
-                    padding-left: 10px;
+                .midas-content h2,
+                .container h2 {
+                    margin: 24px 0 14px;
+                    color: #0f172a;
+                    font-size: 20px;
+                    line-height: 1.35;
+                    font-weight: 800;
+                    letter-spacing: 0;
+                }
+
+                .midas-content h3,
+                .container h3 {
+                    display: inline-block;
+                    margin: 18px 0 10px;
+                    padding: 5px 11px;
+                    border-radius: 999px;
+                    background: #dbeafe;
+                    color: #1d4ed8;
+                    font-size: 13px;
+                    line-height: 1.4;
+                    font-weight: 700;
+                }
+
+                .midas-content p,
+                .container p {
+                    margin: 0 0 10px;
+                    color: #334155;
+                    font-size: 15px;
+                    line-height: 1.85;
+                }
+
+                .midas-content ul,
+                .midas-content ol,
+                .container ul,
+                .container ol {
+                    margin: 0 0 12px;
+                    padding: 0 0 0 22px;
+                    color: #334155;
+                    font-size: 15px;
+                    line-height: 1.85;
+                }
+
+                .midas-content li,
+                .container li {
+                    margin: 0 0 10px;
+                }
+
+                .midas-content a,
+                .container a {
+                    color: #2563eb;
+                    text-decoration: none;
+                    font-weight: 700;
+                }
+
+                .midas-content hr,
+                .container hr {
+                    border: none;
+                    border-top: 1px solid #e2e8f0;
+                    margin: 24px 0;
                 }
 
                 .content {
-                    background: #f8f9fa;
-                    padding: 15px;
-                    border-radius: 5px;
-                    margin: 10px 0;
-                }
-
-                hr {
-                    border: none;
-                    border-top: 1px solid #ddd;
-                    margin: 30px 0;
-                }
-
-                footer {
-                    text-align: center;
-                    color: #7f8c8d;
-                    font-size: 14px;
+                    color: #334155;
+                    font-size: 15px;
+                    line-height: 1.85;
                 }
 
                 .plugin-promo {
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                    padding: 20px;
-                    border-radius: 8px;
+                    background: #f8fafc;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 12px;
+                    padding: 22px 24px;
                     margin-top: 20px;
-                    color: white;
                 }
 
                 .plugin-promo p {
-                    margin: 8px 0;
+                    margin: 0 0 10px;
+                    color: #475569;
+                    font-size: 14px;
+                    line-height: 1.75;
                 }
 
                 .plugin-promo a {
-                    color: #ffd700;
+                    color: #2563eb;
                     text-decoration: none;
-                    font-weight: bold;
+                    font-weight: 800;
                 }
 
-                .plugin-promo a:hover {
-                    text-decoration: underline;
-                }
-
-                .plugin-promo ul {
-                    text-align: left;
-                    display: inline-block;
-                    margin: 10px 0;
-                    padding-left: 20px;
-                }
-
-                .plugin-promo li {
-                    margin: 5px 0;
-                }
-
-                ul, ol {
-                    padding-left: 20px;
-                }
-
-                li {
-                    margin: 5px 0;
+                @media screen and (max-width: 640px) {
+                    .container {
+                        margin: 0;
+                        border-radius: 0;
+                        padding: 24px 20px;
+                    }
                 }
                 """;
     }
@@ -260,16 +385,53 @@ public class ReportTemplate {
     }
 
     /**
+     * 去掉 Markdown 中已有的 Midas 页脚，避免编辑后发送时重复出现插件介绍。
+     */
+    private static String stripGeneratedFooter(String markdown) {
+        String normalized = normalizeMarkdownBlock(markdown);
+        Matcher matcher = FOOTER_SEPARATOR_PATTERN.matcher(normalized);
+        int lastSeparatorStart = -1;
+        while (matcher.find()) {
+            lastSeparatorStart = matcher.start();
+        }
+        if (lastSeparatorStart < 0) {
+            return normalized;
+        }
+        return normalized.substring(0, lastSeparatorStart).strip();
+    }
+
+    /**
+     * 格式化周报日期范围。
+     */
+    private static String formatDateRange(WeeklyReport report, boolean isEnglish) {
+        LocalDate weekStart = report == null ? null : report.getWeekStart();
+        LocalDate weekEnd = report == null ? null : report.getWeekEnd();
+        if (weekStart == null || weekEnd == null) {
+            return isEnglish ? "Current reporting period" : "当前周报周期";
+        }
+        if (isEnglish) {
+            return weekStart + " to " + weekEnd;
+        }
+        return DATE_FORMATTER.format(weekStart) + " 至 " + DATE_FORMATTER.format(weekEnd);
+    }
+
+    /**
+     * 转义少量动态文本，避免标题和日期中的特殊字符破坏 HTML。
+     */
+    private static String escapeHtml(String text) {
+        if (text == null) {
+            return "";
+        }
+        return text.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;");
+    }
+
+    /**
      * 判断 Markdown 片段是否包含可展示内容。
      */
     private static boolean hasMarkdownContent(String markdown) {
         return markdown != null && !markdown.isBlank();
-    }
-
-    private static String capitalize(String str) {
-        if (str == null || str.isEmpty()) {
-            return str;
-        }
-        return str.substring(0, 1).toUpperCase() + str.substring(1);
     }
 }
