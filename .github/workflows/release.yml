@@ -31,4 +31,4 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: build/distributions/*.zip
-          body: ${{ github.event.head_commit.message }}
+          generate_release_notes: true
