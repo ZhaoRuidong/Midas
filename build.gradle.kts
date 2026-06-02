@@ -18,24 +18,32 @@ repositories {
     }
 }
 
-val ideaInstallPath = listOfNotNull(
-    providers.gradleProperty("ideaPath").orNull,
-    providers.environmentVariable("IDEA_HOME").orNull,
-    "${System.getProperty("user.home")}/Applications/IntelliJ IDEA 2026.1.app",
-    "${System.getProperty("user.home")}/Applications/IntelliJ IDEA.app",
-    "/Applications/IntelliJ IDEA.app",
-).map(::File)
-    .firstOrNull(File::isDirectory)
-    ?.absolutePath
-    ?: error("IntelliJ IDEA installation not found. Set -PideaPath=/path/to/IntelliJ IDEA.app or IDEA_HOME.")
+val isCI = System.getenv("CI") == "true"
+
+val ideaInstallPath = if (isCI) {
+    null
+} else {
+    listOfNotNull(
+        providers.gradleProperty("ideaPath").orNull,
+        providers.environmentVariable("IDEA_HOME").orNull,
+        "${System.getProperty("user.home")}/Applications/IntelliJ IDEA 2026.1.app",
+        "${System.getProperty("user.home")}/Applications/IntelliJ IDEA.app",
+        "/Applications/IntelliJ IDEA.app",
+    ).map(::File)
+        .firstOrNull(File::isDirectory)
+        ?.absolutePath
+}
 
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin.html
 dependencies {
     intellijPlatform {
-        local(ideaInstallPath)
-        testFramework(org.jetbrains.intellij.platform.gradle.TestFrameworkType.Platform)
+        if (isCI) {
+            intellijIdeaUltimate("2026.1")
+        } else {
+            local(ideaInstallPath ?: error("IntelliJ IDEA installation not found. Set -PideaPath=/path/to/IntelliJ IDEA.app or IDEA_HOME."))
+        }
 
-        // Add plugin dependencies for compilation here:
+        testFramework(org.jetbrains.intellij.platform.gradle.TestFrameworkType.Platform)
 
         composeUI()
 
