@@ -21,7 +21,6 @@ import org.jetbrains.annotations.NotNull;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -100,20 +99,12 @@ public class GenerateCommitMessageAction extends AnAction {
                     AIAnalyzerService aiService = ApplicationManager.getApplication().getService(AIAnalyzerService.class);
                     message = aiService.generateCommitMessage(diffContent, config).join();
                 } else {
-                    LOG.info("Building diff content for local agent...");
-                    String diffContent = buildDiffContent(finalChanges);
-                    LOG.info("Diff content built. Length=" + diffContent.length() + ", empty=" + diffContent.isEmpty());
-
-                    if (diffContent.isEmpty()) {
-                        throw new RuntimeException("Could not read diff content from changes.");
-                    }
-
                     Map<File, List<Change>> grouped = groupByGitRoot(finalChanges, project);
                     LOG.info("Local agent: " + grouped.size() + " git repo(s) detected");
 
                     if (grouped.size() == 1) {
                         Map.Entry<File, List<Change>> entry = grouped.entrySet().iterator().next();
-                        message = runAgentProcess(provider, diffContent, config, entry.getKey());
+                        message = runAgentProcess(provider, config, entry.getKey());
                     } else {
                         message = runMultiRepoAgent(provider, grouped, config);
                     }
@@ -200,18 +191,15 @@ public class GenerateCommitMessageAction extends AnAction {
                 dir = dir.getParentFile();
             }
         }
-        return project.getBasePath() != null ? new File(project.getBasePath()) : new File(".");
+        return project != null && project.getBasePath() != null ? new File(project.getBasePath()) : new File(".");
     }
 
     private String runMultiRepoAgent(PluginConfig.CommitMsgProvider provider, Map<File, List<Change>> grouped, ConfigManager config) throws Exception {
         StringBuilder combinedMessage = new StringBuilder();
         for (Map.Entry<File, List<Change>> entry : grouped.entrySet()) {
-            String diffContent = buildDiffContent(entry.getValue().toArray(new Change[0]));
-            if (diffContent.isEmpty()) continue;
-
             String repoName = entry.getKey().getName();
             LOG.info("Running agent for repo: " + repoName);
-            String partial = runAgentProcess(provider, diffContent, config, entry.getKey());
+            String partial = runAgentProcess(provider, config, entry.getKey());
             combinedMessage.append("[ ").append(repoName).append(" ] ").append(partial.trim()).append("\n");
         }
 
@@ -222,9 +210,9 @@ public class GenerateCommitMessageAction extends AnAction {
         return result;
     }
 
-    private String runAgentProcess(PluginConfig.CommitMsgProvider provider, String diffContent, ConfigManager config, File workDir) throws Exception {
+    private String runAgentProcess(PluginConfig.CommitMsgProvider provider, ConfigManager config, File workDir) throws Exception {
         String prompt = config.getCommitMsgLocalPrompt();
-        String command = buildAgentCommand(provider, prompt, diffContent);
+        String command = buildAgentCommand(provider, prompt);
 
         LOG.info("Running local agent. workDir=" + workDir.getAbsolutePath() + ", command=" + command);
 
@@ -260,24 +248,15 @@ public class GenerateCommitMessageAction extends AnAction {
         return result;
     }
 
-    private String buildAgentCommand(PluginConfig.CommitMsgProvider provider, String prompt, String diffContent) {
-        try {
-            File tempFile = File.createTempFile("midas-diff-", ".txt");
-            tempFile.deleteOnExit();
-            Files.writeString(tempFile.toPath(), diffContent);
+    private String buildAgentCommand(PluginConfig.CommitMsgProvider provider, String prompt) {
+        String escapedPrompt = prompt.replace("'", "'\\''");
 
-            String escapedPrompt = prompt.replace("'", "'\\''");
-            String diffFilePath = tempFile.getAbsolutePath();
-
-            return switch (provider) {
-                case CLAUDE -> "claude -p '" + escapedPrompt + "' < '" + diffFilePath + "'";
-                case CODEX -> "codex --prompt '" + escapedPrompt + "' < '" + diffFilePath + "'";
-                case OPENCODE -> "opencode -p '" + escapedPrompt + "' < '" + diffFilePath + "'";
-                default -> throw new IllegalArgumentException("Unknown local agent: " + provider);
-            };
-        } catch (java.io.IOException e) {
-            throw new RuntimeException("Failed to create temp diff file", e);
-        }
+        return switch (provider) {
+            case CLAUDE -> "claude -p '" + escapedPrompt + "' < /dev/null";
+            case CODEX -> "codex --prompt '" + escapedPrompt + "' < /dev/null";
+            case OPENCODE -> "opencode -p '" + escapedPrompt + "' < /dev/null";
+            default -> throw new IllegalArgumentException("Unknown local agent: " + provider);
+        };
     }
 
     private Change[] filterOutConfigFiles(Change[] changes) {
@@ -298,6 +277,11 @@ public class GenerateCommitMessageAction extends AnAction {
     }
 
     private String buildDiffContent(Change[] changes) {
+        String gitDiff = buildGitDiffContent(changes);
+        if (gitDiff != null && !gitDiff.isEmpty()) {
+            return gitDiff;
+        }
+
         StringBuilder sb = new StringBuilder();
         for (Change change : changes) {
             sb.append("--- ").append(getFilePath(change)).append("\n");
@@ -329,20 +313,121 @@ public class GenerateCommitMessageAction extends AnAction {
         }
 
         String result = sb.toString();
-        if (result.length() > 15000) {
-            result = result.substring(0, 15000) + "\n... (truncated)";
+        if (result.length() > 30000) {
+            result = result.substring(0, 30000) + "\n... (truncated)";
         }
         return result;
     }
 
+    private String buildGitDiffContent(Change[] changes) {
+        try {
+            Map<File, List<Change>> byRoot = new LinkedHashMap<>();
+            for (Change change : changes) {
+                File root = findGitRoot(change, null);
+                if (root != null) {
+                    byRoot.computeIfAbsent(root, k -> new ArrayList<>()).add(change);
+                }
+            }
+            if (byRoot.isEmpty()) return null;
+
+            StringBuilder diff = new StringBuilder();
+
+            for (Map.Entry<File, List<Change>> entry : byRoot.entrySet()) {
+                File gitRoot = entry.getKey();
+                List<Change> repoChanges = entry.getValue();
+
+                List<String> trackedFiles = new ArrayList<>();
+                List<Change> newFileChanges = new ArrayList<>();
+
+                for (Change c : repoChanges) {
+                    String relPath = getRelativePathFromRoot(c, gitRoot);
+                    if (relPath == null) continue;
+                    if (c.getBeforeRevision() == null) {
+                        newFileChanges.add(c);
+                    } else {
+                        trackedFiles.add(relPath);
+                    }
+                }
+
+                if (!trackedFiles.isEmpty()) {
+                    List<String> cmd = new ArrayList<>();
+                    cmd.add("git");
+                    cmd.add("diff");
+                    cmd.add("HEAD");
+                    cmd.add("--");
+                    cmd.addAll(trackedFiles);
+
+                    ProcessBuilder pb = new ProcessBuilder(cmd);
+                    pb.directory(gitRoot);
+                    pb.redirectErrorStream(true);
+                    Process process = pb.start();
+                    String output = new String(process.getInputStream().readAllBytes(), "UTF-8");
+                    int exitCode = process.waitFor();
+
+                    if (exitCode != 0) {
+                        cmd.remove(2);
+                        pb = new ProcessBuilder(cmd);
+                        pb.directory(gitRoot);
+                        pb.redirectErrorStream(true);
+                        process = pb.start();
+                        output = new String(process.getInputStream().readAllBytes(), "UTF-8");
+                        process.waitFor();
+                    }
+
+                    diff.append(output);
+                }
+
+                for (Change c : newFileChanges) {
+                    String relPath = getRelativePathFromRoot(c, gitRoot);
+                    if (relPath == null) continue;
+                    String content = getContent(c.getAfterRevision());
+                    if (content != null) {
+                        diff.append("diff --git a/").append(relPath).append(" b/").append(relPath).append("\n");
+                        diff.append("new file mode 100644\n");
+                        diff.append("--- /dev/null\n");
+                        diff.append("+++ b/").append(relPath).append("\n");
+                        for (String line : content.split("\n")) {
+                            diff.append("+").append(line).append("\n");
+                        }
+                        diff.append("\n");
+                    }
+                }
+            }
+
+            String result = diff.toString();
+            if (result.length() > 30000) {
+                result = result.substring(0, 30000) + "\n... (truncated)";
+            }
+            return result.isEmpty() ? null : result;
+        } catch (Exception e) {
+            LOG.warn("Failed to build git diff, falling back to content-based diff", e);
+            return null;
+        }
+    }
+
+    private String getRelativePathFromRoot(Change change, File root) {
+        ContentRevision rev = change.getAfterRevision() != null ? change.getAfterRevision() : change.getBeforeRevision();
+        if (rev == null) return null;
+        String absPath = rev.getFile().getPath();
+        String rootPath = root.getAbsolutePath();
+        if (absPath.startsWith(rootPath + File.separator)) {
+            return absPath.substring(rootPath.length() + 1);
+        }
+        return rev.getFile().getName();
+    }
+
     private String getFilePath(Change change) {
-        if (change.getAfterRevision() != null) {
-            return change.getAfterRevision().getFile().getName();
+        ContentRevision rev = change.getAfterRevision() != null ? change.getAfterRevision() : change.getBeforeRevision();
+        if (rev == null) return "unknown";
+        String path = rev.getFile().getPath();
+        File gitRoot = findGitRoot(change, null);
+        if (gitRoot != null) {
+            String rootPath = gitRoot.getAbsolutePath();
+            if (path.startsWith(rootPath + File.separator)) {
+                return path.substring(rootPath.length() + 1);
+            }
         }
-        if (change.getBeforeRevision() != null) {
-            return change.getBeforeRevision().getFile().getName();
-        }
-        return "unknown";
+        return rev.getFile().getName();
     }
 
     private String getContent(ContentRevision revision) {

@@ -362,9 +362,13 @@ public final class ConfigManager implements PersistentStateComponent<ConfigManag
 
         // Commit message generation settings
         public String commitMsgProvider = "API";
-        public String commitMsgLocalPrompt = "Based on the following git diff, generate a commit message can be used directly. " +
-                "1. Do NOT execute any git commands (no git add, git commit, or git push)." +
-                "2. Just return simple text without any other formats. Not json,Not markdown either.";
+        public String commitMsgLocalPrompt = "Run `git diff` to see the working tree changes, then generate a commit message.\n" +
+                "Format: first line is type(scope): subject (under 72 chars), blank line, then numbered list (1. 2. 3.) of key changes.\n" +
+                "Example:\n" +
+                "fix(registry): fix JDBC registry heartbeat loss\n\n" +
+                "1. Fix heartbeat refresh using stale DTO instead of cloned snapshot.\n" +
+                "2. Disable JVM CPU overload protection, keep warning log only.\n" +
+                "Do NOT execute any git commit/push commands. Return ONLY the commit message text, no json, no markdown fences.";
         public boolean commitMsgConfigFileEnabled = false;
     }
 

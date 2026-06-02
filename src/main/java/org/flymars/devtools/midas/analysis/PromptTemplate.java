@@ -181,30 +181,30 @@ public class PromptTemplate {
 
         if (isEnglish) {
             prompt.append("You are an expert at writing Git commit messages.\n\n");
-            prompt.append("Analyze the following staged diff and generate a concise commit message.\n\n");
-            prompt.append("## Staged Changes\n\n");
+            prompt.append("Analyze the following diff and generate a commit message.\n\n");
+            prompt.append("## Diff\n\n");
             prompt.append("```\n");
             prompt.append(diffContent);
             prompt.append("\n```\n\n");
-            prompt.append("Requirements:\n");
-            prompt.append("1. Use conventional commits format: type(scope): description\n");
+            prompt.append("Format requirements:\n");
+            prompt.append("1. First line: DWS-XXX: concise subject summary (under 72 chars)\n");
             prompt.append("2. Types: feat, fix, refactor, docs, test, chore, style, perf\n");
-            prompt.append("3. Keep the subject line under 72 characters\n");
-            prompt.append("4. If the changes are complex, add a blank line then a brief body\n");
-            prompt.append("5. Return ONLY the commit message text, nothing else\n");
+            prompt.append("3. Blank line after subject\n");
+            prompt.append("4. Body: numbered list (1. 2. 3.) of key changes, each item describes what was changed and why\n");
+            prompt.append("5. Return ONLY the commit message text, nothing else\n\n");
         } else {
             prompt.append("你是一名 Git commit message 撰写专家。\n\n");
-            prompt.append("请分析以下暂存区的 diff 内容，生成简洁的 commit message。\n\n");
-            prompt.append("## 暂存区变更\n\n");
+            prompt.append("请分析以下 diff 内容，生成 commit message。\n\n");
+            prompt.append("## Diff\n\n");
             prompt.append("```\n");
             prompt.append(diffContent);
             prompt.append("\n```\n\n");
-            prompt.append("要求：\n");
-            prompt.append("1. 使用 conventional commits 格式：type(scope): description\n");
-            prompt.append("2. 类型包括：feat, fix, refactor, docs, test, chore, style, perf\n");
-            prompt.append("3. 主题行控制在 72 个字符以内\n");
-            prompt.append("4. 如果变更较复杂，在空行后添加简要说明\n");
-            prompt.append("5. 只返回 commit message 文本，不要有其他内容\n");
+            prompt.append("格式要求：\n");
+            prompt.append("1. 第一行：DWS-xxx: 简洁的主题描述（72 字符以内）\n");
+            prompt.append("2. 类型：feat, fix, refactor, docs, test, chore, style, perf\n");
+            prompt.append("3. 主题行后空一行\n");
+            prompt.append("4. 正文：用编号列表（1. 2. 3.）列出关键变更，每条说明改了什么以及为什么改\n");
+            prompt.append("5. 只返回 commit message 文本，不要有其他内容\n\n");
         }
 
         return prompt.toString();

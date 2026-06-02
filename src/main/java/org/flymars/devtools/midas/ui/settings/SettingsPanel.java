@@ -547,7 +547,7 @@ public class SettingsPanel {
         });
 
         commitMsgLocalPromptArea = new JBTextArea(4, 40);
-        commitMsgLocalPromptArea.setText("Based on the following git diff, generate ONLY a commit message. Do NOT execute any git commands (no git add, git commit, or git push). Output the commit message text and nothing else.");
+        commitMsgLocalPromptArea.setText("Run `git diff` to see the working tree changes, then generate a commit message.\nFormat: first line is type(scope): subject (under 72 chars), blank line, then numbered list (1. 2. 3.) of key changes.\nDo NOT execute any git commit/push commands. Return ONLY the commit message text, no json, no markdown fences.");
         commitMsgLocalPromptArea.setEnabled(false);
         commitMsgLocalPromptArea.setLineWrap(true);
         commitMsgLocalPromptArea.setWrapStyleWord(true);
